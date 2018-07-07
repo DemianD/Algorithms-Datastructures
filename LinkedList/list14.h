@@ -34,10 +34,65 @@ class List : private ListNodeptr<T>
     List(){};
 
   public:
-    List(const List<T> &);
+    List(const List<T> &l)
+    {
+        std::cerr << "\tcalled List<T> copy constructor\n";
+        if (this != &l)
+        {
+            ListNode<T> *tmp = l.get();
+            while (tmp != nullptr)
+            {
+                add(tmp->item);
+                tmp = tmp->next.get();
+            }
+        }
+        else
+            std::cerr << "\t you tried to copy construct yourself, won't do the copy\n";
+    };
 
   public:
-    List(List<T> &&);
+    List(List<T> &&l)
+    {
+        std::cerr << "\tcalled List<T> move constructor\n";
+        (*this).operator=(std::move(l));
+    };
+
+
+  public:
+    List<T> &operator=(const List<T> &l)
+    {
+        std::cerr << "\tcalled List<T> copy operator\n";
+        if (this != &l)
+        {
+            this->reset(nullptr);
+            ListNode<T> *tmp = l.get();
+            while (tmp != nullptr)
+            {
+                add(tmp->item);
+                tmp = tmp->next.get();
+            }
+        }
+        else
+            std::cerr << "\t you tried to copy operator on yourself, won't do the copy\n";
+        return *this;
+    };
+
+  public:
+  // of List<T> &operator=(List<T> &&l) = default;
+    List<T> &operator=(List<T> &&l) = default;
+    //{
+        // std::cerr << "\tcalled List<T> move operator for List<T> rvalue ref\n";
+        // //(*this).ListNodeptr<T>::operator=(std::move(l));
+        // return *this;
+    //};
+
+  public:
+    List<T> &operator=(ListNodeptr<T> &&l)
+    {
+        std::cerr << "\tcalled List<T> move operator for ListNodeptr<T> rvalue ref\n";
+        (*this).ListNodeptr<T>::operator=(std::move(l));
+        return *this;
+    };
 
     // Taking unique_ptr's constructors
     using ListNodeptr<T>::ListNodeptr;
@@ -45,26 +100,70 @@ class List : private ListNodeptr<T>
     // Operations
   public:
     // Duplicates are allowed
-    void add(const T &);
+    void add(const T &item)
+    {
+        ListNodeptr<T> nieuw(new ListNode<T>(item));
+        ListNodeptr<T>::swap(nieuw->next);
+        *this = std::move(nieuw);
+    };
 
   public:
     // Number of times the supplied key is found in the list
-    int getTimesFound(const T &) const;
+    int getTimesFound(const T &item) const
+    {
+        const List<T> *plaats = search(item);
+        //noot: plaats==0 is false zelfs als plaats een nulpointer is
+        if (*plaats)
+            return 1 + plaats->get()->next.size(item);
+        else
+            return 0;
+    };
 
   public:
     // List size
-    int size() const;
+    int size() const
+    {
+        if (*this)
+            return 1 + this->get()->next.size();
+        else
+            return 0;
+    };
 
   public:
     // Only removes the first occurrence of the argument
-    void remove(const T &);
+    void remove(const T &item)
+    {
+        search(item)->removeFirst();
+    };
 
   public:
     // Removes the first node
-    void removeFirst();
+    void removeFirst()
+    {
+        if (this->get() != 0)
+        {
+            ListNodeptr<T> staart(std::move(this->get()->next));
+            this->reset();
+            ListNodeptr<T>::swap(staart);
+        }
+    };
 
   public:
-    void insertionsort();
+    void insertionsort()
+    {
+        ListNodeptr<T> unsorted = std::move(*this);
+        while (unsorted)
+        {
+            List *plaats = searchInSorted(unsorted.get()->item);
+            ListNodeptr<T> dummy = std::move(unsorted);
+            //vermits unsorted een nullpointer is, is het equivalent van de volgende lijnen ongeveer
+            //unsorted=std::move(dummy.get()->next);
+            //std::swap(*plaats,dummy.get()->next);
+            std::swap(unsorted, dummy.get()->next);
+            dummy.get()->next = std::move(*plaats);
+            *plaats = std::move(dummy);
+        };
+    };
 
     // search geeft een pointer naar de List die de itemeutelwaarde bevat,
     // en geeft een pointer naar de lege List op het einde als de itemeutel niet
@@ -73,28 +172,35 @@ class List : private ListNodeptr<T>
   protected:
     // Search returns a pointer to a list, containing the key (argument)
     // or a pointer to an empty list if the key isn't found
-    const List *search(const T &) const;
+    const List *search(const T &item) const
+    {
+        const List<T> *pl = this;
+        while (*pl && pl->get()->item != item)
+            pl = &(pl->get()->next);
+        return pl;
+    };
 
   protected:
     // Search returns a pointer to a list, containing the key (argument)
     // or a pointer to an empty list if the key isn't found
-    List *search(const T &);
+    List *search(const T &item)
+    {
+        List *pl = this;
+        while (*pl && pl->get()->item != item)
+            pl = &(pl->get()->next);
+        return pl;
+    };
 
   protected:
     // searchInSorted assumes a sorted list and returns a list where the key should be
-    List<T> *searchInSorted(const T &item);
+    List<T> *searchInSorted(const T &item)
+    {
+        List *plaats = this;
+        while (*plaats && plaats->get()->item < item)
+            plaats = &plaats->get()->next;
+        return plaats;
+    };
 
-  public:
-  // Copy assignment operator
-    List<T> &operator=(const List<T> &);
-
-  public:
-  // Move assignment operator
-    List<T> &operator=(List<T> &&) = default;
-
-  public:
-  // Move assignment operator when the right-hand operand is a ListNodeptr<T> instead of a List<T>
-    List<T> &operator=(ListNodeptr<T> &&);
 
     // Output operator overwrite
     friend ostream &operator<<<>(ostream &os, const List &l);
@@ -103,7 +209,7 @@ class List : private ListNodeptr<T>
 
   public:
     void output(ostream &os) const;
-    
+
   public:
     class iterator
     {
@@ -118,71 +224,6 @@ class List : private ListNodeptr<T>
 };
 
 // Implementation of the constructors / operators
-template <class T>
-List<T>::List(const List<T> &l)
-{
-    std::cerr << "\tcalled List<T> copy constructor\n";
-    if (this != &l)
-    {
-        ListNode<T> *tmp = l.get();
-        while (tmp != nullptr)
-        {
-            add(tmp->item);
-            tmp = tmp->next.get();
-        }
-    }
-    else
-        std::cerr << "\t you tried to copy construct yourself, won't do the copy\n";
-}
-
-template <class T>
-List<T>::List(List<T> &&l)
-{
-    std::cerr << "\tcalled List<T> move constructor\n";
-    (*this).operator=(std::move(l));
-}
-
-template <class T>
-List<T> &List<T>::operator=(const List<T> &l)
-{
-    std::cerr << "\tcalled List<T> copy operator\n";
-    if (this != &l)
-    {
-        this->reset(nullptr);
-        ListNode<T> *tmp = l.get();
-        while (tmp != nullptr)
-        {
-            add(tmp->item);
-            tmp = tmp->next.get();
-        }
-    }
-    else
-        std::cerr << "\t you tried to copy operator on yourself, won't do the copy\n";
-    return *this;
-}
-
-//template<class T>
-//List<T>& List<T>::operator=(List<T>&& l){
-//	std::cerr<<"\tcalled List<T> move operator for List<T> rvalue ref\n";
-//	//(*this).ListNodeptr<T>::operator=(std::move(l));
-//	return *this;
-//}
-
-template <class T>
-List<T> &List<T>::operator=(ListNodeptr<T> &&l)
-{
-    std::cerr << "\tcalled List<T> move operator for ListNodeptr<T> rvalue ref\n";
-    (*this).ListNodeptr<T>::operator=(std::move(l));
-    return *this;
-}
-
-template <class T>
-void List<T>::add(const T &item)
-{
-    ListNodeptr<T> nieuw(new ListNode<T>(item));
-    ListNodeptr<T>::swap(nieuw->next);
-    *this = std::move(nieuw);
-}
 
 template <class T>
 void swap(List<T> &a, List<T> &b)
@@ -302,85 +343,5 @@ void List<T>::output(ostream &os) const
     }
 #endif
 }
-//oplossing:
 
-template <class T>
-const List<T> *List<T>::search(const T &item) const
-{
-    const List<T> *pl = this;
-    while (*pl && pl->get()->item != item)
-        pl = &(pl->get()->next);
-    return pl;
-}
-template <class T>
-int List<T>::getTimesFound(const T &item) const
-{
-    const List<T> *plaats = search(item);
-    //noot: plaats==0 is false zelfs als plaats een nulpointer is
-    if (*plaats)
-        return 1 + plaats->get()->next.size(item);
-    else
-        return 0;
-};
-
-template <class T>
-int List<T>::size() const
-{
-    if (*this)
-        return 1 + this->get()->next.size();
-    else
-        return 0;
-};
-
-template <class T>
-List<T> *List<T>::search(const T &item)
-{
-    List *pl = this;
-    while (*pl && pl->get()->item != item)
-        pl = &(pl->get()->next);
-    return pl;
-}
-
-template <class T>
-void List<T>::removeFirst()
-{
-    if (this->get() != 0)
-    {
-        ListNodeptr<T> staart(std::move(this->get()->next));
-        this->reset();
-        ListNodeptr<T>::swap(staart);
-    }
-}
-
-template <class T>
-void List<T>::remove(const T &item)
-{
-    search(item)->removeFirst();
-}
-
-template <class T>
-List<T> *List<T>::searchInSorted(const T &item)
-{
-    List *plaats = this;
-    while (*plaats && plaats->get()->item < item)
-        plaats = &plaats->get()->next;
-    return plaats;
-};
-
-template <class T>
-void List<T>::insertionsort()
-{
-    ListNodeptr<T> unsorted = std::move(*this);
-    while (unsorted)
-    {
-        List *plaats = searchInSorted(unsorted.get()->item);
-        ListNodeptr<T> dummy = std::move(unsorted);
-        //vermits unsorted een nullpointer is, is het equivalent van de volgende lijnen ongeveer
-        //unsorted=std::move(dummy.get()->next);
-        //std::swap(*plaats,dummy.get()->next);
-        std::swap(unsorted, dummy.get()->next);
-        dummy.get()->next = std::move(*plaats);
-        *plaats = std::move(dummy);
-    };
-};
 #endif
