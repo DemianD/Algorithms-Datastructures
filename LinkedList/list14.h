@@ -66,8 +66,8 @@ class List : private ListNodeptr<T>
   public:
     void insertionsort();
 
-    // zoek geeft een pointer naar de List die de sleutelwaarde bevat,
-    // en geeft een pointer naar de lege List op het einde als de sleutel niet
+    // search geeft een pointer naar de List die de itemeutelwaarde bevat,
+    // en geeft een pointer naar de lege List op het einde als de itemeutel niet
     // voorkomt.
 
   protected:
@@ -82,7 +82,7 @@ class List : private ListNodeptr<T>
 
   protected:
     // searchInSorted assumes a sorted list and returns a list where the key should be
-    List<T> *searchInSorted(const T &sl);
+    List<T> *searchInSorted(const T &item);
 
   public:
   // Copy assignment operator
@@ -127,8 +127,8 @@ List<T>::List(const List<T> &l)
         ListNode<T> *tmp = l.get();
         while (tmp != nullptr)
         {
-            voegToe(tmp->sl);
-            tmp = tmp->volgend.get();
+            add(tmp->item);
+            tmp = tmp->next.get();
         }
     }
     else
@@ -152,8 +152,8 @@ List<T> &List<T>::operator=(const List<T> &l)
         ListNode<T> *tmp = l.get();
         while (tmp != nullptr)
         {
-            voegToe(tmp->sl);
-            tmp = tmp->volgend.get();
+            add(tmp->item);
+            tmp = tmp->next.get();
         }
     }
     else
@@ -177,10 +177,10 @@ List<T> &List<T>::operator=(ListNodeptr<T> &&l)
 }
 
 template <class T>
-void List<T>::voegToe(const T &sl)
+void List<T>::add(const T &item)
 {
-    ListNodeptr<T> nieuw(new ListNode<T>(sl));
-    ListNodeptr<T>::swap(nieuw->volgend);
+    ListNodeptr<T> nieuw(new ListNode<T>(item));
+    ListNodeptr<T>::swap(nieuw->next);
     *this = std::move(nieuw);
 }
 
@@ -188,9 +188,9 @@ template <class T>
 void swap(List<T> &a, List<T> &b)
 {
     std::cerr << "a before: ";
-    a.schrijf(std::cerr);
+    a.output(std::cerr);
     std::cerr << "\nb before: ";
-    b.schrijf(std::cerr);
+    b.output(std::cerr);
     std::cerr << "\n";
 
     List<T> tmp;
@@ -199,9 +199,9 @@ void swap(List<T> &a, List<T> &b)
     a = std::move(tmp);
 
     std::cerr << "a after: ";
-    a.schrijf(std::cerr);
+    a.output(std::cerr);
     std::cerr << "\nb after: ";
-    b.schrijf(std::cerr);
+    b.output(std::cerr);
     std::cerr << "\n";
 }
 
@@ -211,52 +211,52 @@ class ListNode
     friend class List<T>;
 
   public:
-    List<T> volgend;
+    List<T> next;
     ListNode(const T &);
     ~ListNode();
 
   protected:
-    T sl;
+    T item;
 #ifdef DEBUG
   public:
-    static bool controle(int gemaakt, int verwijderd);
+    static bool control(int gemaakt, int removed);
 
   protected:
-    static int aantalGemaakt;
-    static int aantalVerwijderd;
+    static int numberMade;
+    static int numberRemoved;
 #endif
 };
 
 template <class T>
-int ListNode<T>::aantalGemaakt = 0;
+int ListNode<T>::numberMade = 0;
 template <class T>
-int ListNode<T>::aantalVerwijderd = 0;
+int ListNode<T>::numberRemoved = 0;
 
 template <class T>
-ListNode<T>::ListNode(const T &_sl) : sl(_sl)
+ListNode<T>::ListNode(const T &_item) : item(_item)
 {
-    std::cerr << "Knoop met sleutel " << sl << " wordt gemaakt\n";
-    aantalGemaakt++;
+    std::cerr << "Knoop met itemeutel " << item << " wordt gemaakt\n";
+    numberMade++;
 }
 
 template <class T>
 ListNode<T>::~ListNode()
 {
-    std::cerr << "Knoop met sleutel " << sl << " wordt verwijderd\n";
-    aantalVerwijderd++;
+    std::cerr << "Knoop met itemeutel " << item << " wordt removed\n";
+    numberRemoved++;
 }
 #ifdef DEBUG
 template <class T>
-bool ListNode<T>::controle(int gemaakt, int verwijderd)
+bool ListNode<T>::control(int gemaakt, int removed)
 {
-    if (aantalGemaakt == gemaakt && aantalVerwijderd == verwijderd)
+    if (numberMade == gemaakt && numberRemoved == removed)
         return true;
     else
     {
-        std::cerr << "Fout bij controle:\n";
-        std::cerr << "Aantal gemaakte knopen   : " << aantalGemaakt << " (moet zijn: " << gemaakt << ")\n";
-        std::cerr << "Aantal verwijderde knopen: " << aantalVerwijderd << " (moet zijn: " << verwijderd << ")\n";
-        throw "Mislukte controle";
+        std::cerr << "Fout bij control:\n";
+        std::cerr << "Aantal gemaakte knopen   : " << numberMade << " (moet zijn: " << gemaakt << ")\n";
+        std::cerr << "Aantal removede knopen: " << numberRemoved << " (moet zijn: " << removed << ")\n";
+        throw "Miitemukte control";
     };
 };
 #endif
@@ -265,39 +265,39 @@ template <class T>
 ostream &operator<<(ostream &os, const List<T> &l)
 {
 #ifdef ITERATOR
-    for (auto &&sleutel : l)
-        os << sleutel << ", ";
+    for (auto &&itemeutel : l)
+        os << itemeutel << ", ";
 #else
     if (l.get())
     {
-        os << l.get()->sl << ", ";
-        os << l.get()->volgend;
+        os << l.get()->item << ", ";
+        os << l.get()->next;
     }
 #endif
     return os;
 }
 
 template <class T>
-void List<T>::schrijf(ostream &os) const
+void List<T>::output(ostream &os) const
 {
 #ifdef ITERATOR
     if (this->get() != 0)
     {
-        os << this->get()->sl;
-        std::for_each(++begin(), end(), [&](const T &sl) { os << " . " << sl; });
+        os << this->get()->item;
+        std::for_each(++begin(), end(), [&](const T &item) { os << " . " << item; });
     }
 #else
     {
         ListNode<T> *kn = this->get();
         if (kn != 0)
         {
-            os << kn->sl;
-            kn = kn->volgend.get();
+            os << kn->item;
+            kn = kn->next.get();
         };
         while (kn != 0)
         {
-            os << " . " << kn->sl;
-            kn = kn->volgend.get();
+            os << " . " << kn->item;
+            kn = kn->next.get();
         };
     }
 #endif
@@ -305,81 +305,81 @@ void List<T>::schrijf(ostream &os) const
 //oplossing:
 
 template <class T>
-const List<T> *List<T>::zoek(const T &sl) const
+const List<T> *List<T>::search(const T &item) const
 {
     const List<T> *pl = this;
-    while (*pl && pl->get()->sl != sl)
-        pl = &(pl->get()->volgend);
+    while (*pl && pl->get()->item != item)
+        pl = &(pl->get()->next);
     return pl;
 }
 template <class T>
-int List<T>::geefaantal(const T &sl) const
+int List<T>::getTimesFound(const T &item) const
 {
-    const List<T> *plaats = zoek(sl);
+    const List<T> *plaats = search(item);
     //noot: plaats==0 is false zelfs als plaats een nulpointer is
     if (*plaats)
-        return 1 + plaats->get()->volgend.geefaantal(sl);
+        return 1 + plaats->get()->next.size(item);
     else
         return 0;
 };
 
 template <class T>
-int List<T>::geefaantal() const
+int List<T>::size() const
 {
     if (*this)
-        return 1 + this->get()->volgend.geefaantal();
+        return 1 + this->get()->next.size();
     else
         return 0;
 };
 
 template <class T>
-List<T> *List<T>::zoek(const T &sl)
+List<T> *List<T>::search(const T &item)
 {
     List *pl = this;
-    while (*pl && pl->get()->sl != sl)
-        pl = &(pl->get()->volgend);
+    while (*pl && pl->get()->item != item)
+        pl = &(pl->get()->next);
     return pl;
 }
 
 template <class T>
-void List<T>::verwijderEerste()
+void List<T>::removeFirst()
 {
     if (this->get() != 0)
     {
-        ListNodeptr<T> staart(std::move(this->get()->volgend));
+        ListNodeptr<T> staart(std::move(this->get()->next));
         this->reset();
         ListNodeptr<T>::swap(staart);
     }
 }
 
 template <class T>
-void List<T>::verwijder(const T &sl)
+void List<T>::remove(const T &item)
 {
-    zoek(sl)->verwijderEerste();
+    search(item)->removeFirst();
 }
 
 template <class T>
-List<T> *List<T>::zoekGesorteerd(const T &sl)
+List<T> *List<T>::searchInSorted(const T &item)
 {
     List *plaats = this;
-    while (*plaats && plaats->get()->sl < sl)
-        plaats = &plaats->get()->volgend;
+    while (*plaats && plaats->get()->item < item)
+        plaats = &plaats->get()->next;
     return plaats;
 };
 
 template <class T>
 void List<T>::insertionsort()
 {
-    ListNodeptr<T> ongesorteerd = std::move(*this);
-    while (ongesorteerd)
+    ListNodeptr<T> unsorted = std::move(*this);
+    while (unsorted)
     {
-        List *plaats = zoekGesorteerd(ongesorteerd.get()->sl);
-        ListNodeptr<T> dummy = std::move(ongesorteerd);
-        //vermits ongesorteerd een nullpointer is, is het equivalent van volgende lijnen ongeveer
-        //ongesorteerd=std::move(dummy.get()->volgend);
-        //std::swap(*plaats,dummy.get()->volgend);
-        std::swap(ongesorteerd, dummy.get()->volgend);
-        dummy.get()->volgend = std::move(*plaats);
+        List *plaats = searchInSorted(unsorted.get()->item);
+        ListNodeptr<T> dummy = std::move(unsorted);
+        //vermits unsorted een nullpointer is, is het equivalent van de volgende lijnen ongeveer
+        //unsorted=std::move(dummy.get()->next);
+        //std::swap(*plaats,dummy.get()->next);
+        std::swap(unsorted, dummy.get()->next);
+        dummy.get()->next = std::move(*plaats);
         *plaats = std::move(dummy);
     };
 };
