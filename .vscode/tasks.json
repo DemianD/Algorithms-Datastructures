@@ -1,17 +1,43 @@
+// Available variables which can be used inside of strings.
+// ${workspaceRoot}: the root folder of the team
+// ${file}: the currently opened file
+// ${fileBasename}: the currently opened file's basename
+// ${fileDirname}: the currently opened file's dirname
+// ${fileExtname}: the currently opened file's extension
+// ${cwd}: the currently working directory of the spawned process
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "g++ -g Calculator.cpp -o Calculator",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher":"$gcc",
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build & debug file",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-g",
+        "-o",
+        "${fileBasenameNoExtension}",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "build & run file",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-o",
+        "${fileBasenameNoExtension}",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$gcc"
+    }
+  ]
 }
