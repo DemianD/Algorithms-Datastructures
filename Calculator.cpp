@@ -41,6 +41,6 @@ int Calculator::Calculate(int x, int y, char oper)
             return x / y;
     default:
         cin >> x >> oper >> y;
-        Calculate(x, y, oper);
+        return Calculate(x, y, oper);
     }
 }
