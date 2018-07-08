@@ -24,7 +24,13 @@ template <class T>
 ostream &operator<<(ostream &os, const List<T> &l);
 
 template <class T>
-void swap(List<T> &&a, List<T> &&b);
+void swap(List<T> &, List<T> &);
+
+template <class T>
+bool operator==(const List<T> &, const List<T> &);
+
+template <class T>
+bool operator!=(const List<T> &, const List<T> &);
 
 template <class T>
 class List : private ListNodeptr<T>
@@ -57,7 +63,6 @@ class List : private ListNodeptr<T>
         (*this).operator=(std::move(l));
     };
 
-
   public:
     List<T> &operator=(const List<T> &l)
     {
@@ -78,12 +83,12 @@ class List : private ListNodeptr<T>
     };
 
   public:
-  // of List<T> &operator=(List<T> &&l) = default;
+    // of List<T> &operator=(List<T> &&l) = default;
     List<T> &operator=(List<T> &&l) = default;
     //{
-        // std::cerr << "\tcalled List<T> move operator for List<T> rvalue ref\n";
-        // //(*this).ListNodeptr<T>::operator=(std::move(l));
-        // return *this;
+    // std::cerr << "\tcalled List<T> move operator for List<T> rvalue ref\n";
+    // //(*this).ListNodeptr<T>::operator=(std::move(l));
+    // return *this;
     //};
 
   public:
@@ -98,6 +103,7 @@ class List : private ListNodeptr<T>
     using ListNodeptr<T>::ListNodeptr;
 
     // Operations
+
   public:
     // Duplicates are allowed
     void add(const T &item)
@@ -165,8 +171,8 @@ class List : private ListNodeptr<T>
         };
     };
 
-    // search geeft een pointer naar de List die de itemeutelwaarde bevat,
-    // en geeft een pointer naar de lege List op het einde als de itemeutel niet
+    // search geeft een pointer naar de List die de itemwaarde bevat,
+    // en geeft een pointer naar de lege List op het einde als de item niet
     // voorkomt.
 
   protected:
@@ -201,11 +207,13 @@ class List : private ListNodeptr<T>
         return plaats;
     };
 
-
     // Output operator overwrite
     friend ostream &operator<<<>(ostream &os, const List &l);
-    // Swap operation
-    friend void swap<>(List<T> &&, List<T> &&);
+    // // Swap operation
+    friend void swap<>(List<T> &, List<T> &);
+
+    friend bool operator==<>(const List &a, const List &b);
+    friend bool operator!=<>(const List &a, const List &b);
 
   public:
     void output(ostream &os) const;
@@ -222,8 +230,6 @@ class List : private ListNodeptr<T>
     iterator begin() const;
     iterator end() const;
 };
-
-// Implementation of the constructors / operators
 
 template <class T>
 void swap(List<T> &a, List<T> &b)
@@ -276,14 +282,14 @@ int ListNode<T>::numberRemoved = 0;
 template <class T>
 ListNode<T>::ListNode(const T &_item) : item(_item)
 {
-    std::cerr << "Knoop met itemeutel " << item << " wordt gemaakt\n";
+    std::cerr << "Knoop met item " << item << " wordt gemaakt\n";
     numberMade++;
 }
 
 template <class T>
 ListNode<T>::~ListNode()
 {
-    std::cerr << "Knoop met itemeutel " << item << " wordt removed\n";
+    std::cerr << "Knoop met item " << item << " wordt removed\n";
     numberRemoved++;
 }
 #ifdef DEBUG
@@ -297,7 +303,7 @@ bool ListNode<T>::control(int gemaakt, int removed)
         std::cerr << "Fout bij control:\n";
         std::cerr << "Aantal gemaakte knopen   : " << numberMade << " (moet zijn: " << gemaakt << ")\n";
         std::cerr << "Aantal removede knopen: " << numberRemoved << " (moet zijn: " << removed << ")\n";
-        throw "Miitemukte control";
+        throw "Control failed";
     };
 };
 #endif
@@ -306,8 +312,8 @@ template <class T>
 ostream &operator<<(ostream &os, const List<T> &l)
 {
 #ifdef ITERATOR
-    for (auto &&itemeutel : l)
-        os << itemeutel << ", ";
+    for (auto &&item : l)
+        os << item << ", ";
 #else
     if (l.get())
     {
@@ -342,6 +348,18 @@ void List<T>::output(ostream &os) const
         };
     }
 #endif
+}
+
+template <class T>
+bool operator==(const List<T> &a, const List<T> &b)
+{
+    return *(dynamic_cast<const ListNodeptr<T> *>(&a)) == *(dynamic_cast<const ListNodeptr<T> *>(&b));
+}
+
+template <class T>
+bool operator!=(const List<T> &a, const List<T> &b)
+{
+    return *(dynamic_cast<const ListNodeptr<T> *>(&a)) == *(dynamic_cast<const ListNodeptr<T> *>(&b));
 }
 
 #endif

@@ -1,10 +1,9 @@
 // testing program for the c++14 linked list implementation
 #include <iostream>
 #include <cstdlib>
-#include "list14.h"
+#include "list14.hpp"
 #include <string>
 
-using std::cerr;
 using std::cout;
 using std::string;
 int nodesCreated = 0;
@@ -25,97 +24,108 @@ List<int> createList()
     return l;
 };
 
- int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
+    {
+        cout << "Creating bare list, called l1" << endl;
+        List<int> l1;
+        l1 = createList();
+        l1.output(cout);
+        cout << endl;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cout << "Creating bare list" << endl;
-    List<int> l;
-    l = createList();
-    l.output(cerr);
-    cerr << endl;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Removing two nodes" << endl;
+        l1.remove(45);
+        nodesRemoved++;
+        
+        l1.remove(123);
+        
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\nverwijderen\n";
-    l.remove(45);
-    nodesRemoved++;
-    l.remove(123);
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        //    //    for (auto s:l)
+        //    //        cout<<s<<"\n";
+        //    //    l.output(cout);
 
-    //    //    for (auto s:l)
-    //    //        cerr<<s<<"\n";
-    //    //    l.output(cerr);
+        cout << "Calling createList() without assigning the result" << endl;
+        createList();
+        nodesRemoved += 8;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\nLosse oproep createList\n";
-    createList();
-    nodesRemoved += 8;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Calling createList() as the constructor argument for a List<int>, called l2" << endl;
+        List<int> l2(createList());
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\ncreateList() in constructor\n";
-    List<int> l2(createList());
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Assigning l1 to l2" << endl;
+        l2 = l1;
+        if (l2 != l1)
+        {
+            cout << "copy yields a different list" << endl;
+            exit(-1);
+        }
+        else
+        {
+            cout << "copy yields the same list, YAY!" << endl;
+        }
+        cout << "The content of l1" << endl;
+        l1.output(cout);
+        cout << "The content of l2" << endl;
+        l2.output(cout);
+        cout << "\n";
+        nodesRemoved += 8;
+        nodesCreated += 7;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\nduplicaat 1\n";
-    l2 = l;
-    cerr << "\t inhoud van L1:\n";
-    l.output(cerr);
-    cerr << "\n\t inhoud van L2:\n";
-    l2.output(cerr);
-    cerr << "\n";
-    nodesRemoved += 8;
-    nodesCreated += 7;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Assigning l1 to l2 again" << endl;
+        l2 = l1;
+        nodesCreated += 7;
+        nodesRemoved += 7;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\nduplicaat 2\n";
-    l2 = l;
-    nodesCreated += 7;
-    nodesRemoved += 7;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Assigning l2 to itself" << endl;
+        l2 = l2;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\nduplicaat 3\n";
-    l2 = l2;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        l2.output(cout);
+        cout << "Creating a new, empty List<int>, called l3" << endl;
+        List<int> l3;
+        cout << "Adding one element to l3" << endl;
+        l3.add(int(99));
+        nodesCreated++;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "l3 = l2 = l1 statement" << endl;
+        l3 = l2 = l1;
+        nodesRemoved += 8;
+        nodesCreated += 14;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    l2.output(cerr);
-    cerr << "\n\nduplicaat 4\n";
-    List<int> l3;
-    cerr << "List l3 staat leeg klaar\n\n";
-    l3.add(int(99));
-    nodesCreated++;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
-    cerr << "start of l3=l2=l\n";
-    l3 = l2 = l;
-    nodesRemoved += 8;
-    nodesCreated += 14;
-    ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "Calling insertion sort on the list" << endl;
+        l2.insertionsort();
+        cout << "Does this look sorted?" << endl;
+        cout << "Content of l2:" << endl;
+        l2.output(cout);
+        cout << endl;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout << "verwijderen" << endl;
+        cout << "Content of l1:" << endl;
+        l1.output(cout);
+        cout << endl;
+        l1.remove(45);
+        l1.remove(45);
+        l1.remove(45);
+        l1.remove(45);
+        nodesRemoved += 2;
+        cout << "Content of l1:" << endl;
+        l1.output(cout);
+        cout << endl;
+        ListNode<int>::control(nodesCreated, nodesRemoved);
 
-    cerr << "\n\ninsertion sort\n";
-    l2.insertionsort();
-    cerr << "does this look sorted?\n";
-    cerr << "Content of l2:\n";
-    l2.output(cerr);
-    cerr << "\n";
-    ListNode<int>::control(nodesCreated, nodesRemoved);
-    cerr << "verwijderen\n";
-    cerr << "Content of l1:\n";
-    l.output(cerr);
-    cerr << "\n";
-    l.remove(45);
-    l.remove(45);
-    l.remove(45);
-    l.remove(45);
-    nodesRemoved += 2;
-    cerr << "Content of l1:\n";
-    l.output(cerr);
-    cerr << "\n";
-    ListNode<int>::control(nodesCreated, nodesRemoved);
-
-    cerr << "\n\nswappen\n";
-    swap(l2, l);
-    ListNode<int>::control(nodesCreated, nodesRemoved);
-    //        l2.output(cerr);
-    //        cerr<<"\n";
-
+        cout << "swappen" << endl;
+        swap(l2, l1);
+        ListNode<int>::control(nodesCreated, nodesRemoved);
+        //        l2.output(cout);
+        //        cout<<"\n";
+    }
     nodesRemoved += 19;
-    ListNode<int>::control(nodesCreated, nodesRemoved);    
+    ListNode<int>::control(nodesCreated, nodesRemoved);
     return 0;
 }
