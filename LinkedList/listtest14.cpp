@@ -33,6 +33,7 @@ int main(int argc, char **argv)
         l1.output(cout);
         cout << endl;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Removing two nodes" << endl;
         l1.remove(45);
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
         l1.remove(123);
         
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         //    //    for (auto s:l)
         //    //        cout<<s<<"\n";
@@ -50,10 +52,12 @@ int main(int argc, char **argv)
         createList();
         nodesRemoved += 8;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Calling createList() as the constructor argument for a List<int>, called l2" << endl;
         List<int> l2(createList());
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Assigning l1 to l2" << endl;
         l2 = l1;
@@ -74,29 +78,36 @@ int main(int argc, char **argv)
         nodesRemoved += 8;
         nodesCreated += 7;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Assigning l1 to l2 again" << endl;
         l2 = l1;
         nodesCreated += 7;
         nodesRemoved += 7;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Assigning l2 to itself" << endl;
         l2 = l2;
-        ListNode<int>::control(nodesCreated, nodesRemoved);
-
         l2.output(cout);
+        ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
+
+        
         cout << "Creating a new, empty List<int>, called l3" << endl;
         List<int> l3;
         cout << "Adding one element to l3" << endl;
         l3.add(int(99));
         nodesCreated++;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
+
         cout << "l3 = l2 = l1 statement" << endl;
         l3 = l2 = l1;
         nodesRemoved += 8;
         nodesCreated += 14;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "Calling insertion sort on the list" << endl;
         l2.insertionsort();
@@ -105,6 +116,8 @@ int main(int argc, char **argv)
         l2.output(cout);
         cout << endl;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
+
         cout << "verwijderen" << endl;
         cout << "Content of l1:" << endl;
         l1.output(cout);
@@ -118,6 +131,7 @@ int main(int argc, char **argv)
         l1.output(cout);
         cout << endl;
         ListNode<int>::control(nodesCreated, nodesRemoved);
+        cout<<endl<<endl;
 
         cout << "swappen" << endl;
         swap(l2, l1);

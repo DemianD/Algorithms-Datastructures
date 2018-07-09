@@ -45,11 +45,21 @@ class List : private ListNodeptr<T>
         std::cout << "\t List(const List<T> &)" << endl;
         if (this != &l)
         {
+            this->reset(nullptr);
+            int l_size = l.size();
+            ListNode<T> *tmparr[l_size];
+
+            int idx = 0;
             ListNode<T> *tmp = l.get();
             while (tmp != nullptr)
             {
-                add(tmp->item);
+                tmparr[idx++] = tmp;
                 tmp = tmp->next.get();
+            }
+
+            for (int i = idx - 1; i >= 0; i--)
+            {
+                this->add(tmparr[i]->item);
             }
         }
         else
@@ -69,11 +79,20 @@ class List : private ListNodeptr<T>
         if (this != &l)
         {
             this->reset(nullptr);
+            int l_size = l.size();
+            ListNode<T> *tmparr[l_size];
+
+            int idx = 0;
             ListNode<T> *tmp = l.get();
             while (tmp != nullptr)
             {
-                add(tmp->item);
+                tmparr[idx++] = tmp;
                 tmp = tmp->next.get();
+            }
+
+            for (int i = idx - 1; i >= 0; i--)
+            {
+                this->add(tmparr[i]->item);
             }
         }
         else
@@ -86,7 +105,7 @@ class List : private ListNodeptr<T>
     List<T> &operator=(List<T> &&l)
     {
         std::cout << "\t &operator=(List<T>&&)" << endl;
-        *this = std::move(*(dynamic_cast<ListNodeptr<T>*>(&l)));
+        *this = std::move(*(dynamic_cast<ListNodeptr<T> *>(&l)));
         return *this;
     };
 
@@ -101,13 +120,37 @@ class List : private ListNodeptr<T>
     // Taking unique_ptr's constructors
     using ListNodeptr<T>::ListNodeptr;
 
+    // Index operator
+
+  public:
+    const T &operator[](int location) const
+    {
+        int size = this->size();
+        if (location >= size)
+        {
+            throw std::out_of_range("List index out of range");
+        }
+        else
+        {
+            int index = 0;
+            const List<T> *current = this;
+            while (index != location)
+            {
+                current = &(this->get()->next);
+                location++;
+            }
+            return current->get()->item;
+        }
+    };
+
     // Operations
 
   public:
     // Duplicates are allowed
     void add(const T &item)
     {
-        ListNodeptr<T> nieuw(new ListNode<T>(item));
+        // C++11     ListNodeptr<T> nieuw(new ListNode<T>(item));
+        ListNodeptr<T> nieuw = std::make_unique<ListNode<T>>(item);
         ListNodeptr<T>::swap(nieuw->next);
         *this = std::move(nieuw);
     };
@@ -169,10 +212,6 @@ class List : private ListNodeptr<T>
             *plaats = std::move(dummy);
         };
     };
-
-    // search geeft een pointer naar de List die de itemwaarde bevat,
-    // en geeft een pointer naar de lege List op het einde als de item niet
-    // voorkomt.
 
   protected:
     // Search returns a pointer to a list, containing the key (argument)
@@ -265,11 +304,16 @@ class ListNode
         std::cout << "ListNode with " << item << " is constructed" << endl;
         numberMade++;
     };
+
+  public:
     ~ListNode()
     {
         std::cout << "ListNode with " << item << " gets destroyed" << endl;
         numberRemoved++;
     };
+
+  public:
+    const T &getItem() const { return item; };
 
   protected:
     T item;
@@ -350,13 +394,31 @@ void List<T>::output(ostream &os) const
 template <class T>
 bool operator==(const List<T> &a, const List<T> &b)
 {
-    return *(dynamic_cast<const ListNodeptr<T> *>(&a)) == *(dynamic_cast<const ListNodeptr<T> *>(&b));
+    // SHALLOW return *(dynamic_cast<const ListNodeptr<T> *>(&a)) == *(dynamic_cast<const ListNodeptr<T> *>(&b));
+    int a_size = a.size();
+    int b_size = b.size();
+    if (a_size != b_size)
+    {
+        return false;
+    }
+    else
+    {
+        const List<T> *a_ptr = &a;
+        const List<T> *b_ptr = &b;
+
+        while (a_ptr->get() && b_ptr->get() && a_ptr->get()->getItem() == b_ptr->get()->getItem())
+        {
+            a_ptr = &(a_ptr->get()->next);
+            b_ptr = &(b_ptr->get()->next);
+        }
+        return a_ptr->get() == nullptr && b_ptr->get() == nullptr;
+    }
 }
 
 template <class T>
 bool operator!=(const List<T> &a, const List<T> &b)
 {
-    return *(dynamic_cast<const ListNodeptr<T> *>(&a)) == *(dynamic_cast<const ListNodeptr<T> *>(&b));
+    return !(a == b);
 }
 
 #endif
