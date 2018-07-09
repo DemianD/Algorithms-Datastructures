@@ -1,10 +1,3 @@
-// Available variables which can be used inside of strings.
-// ${workspaceRoot}: the root folder of the team
-// ${file}: the currently opened file
-// ${fileBasename}: the currently opened file's basename
-// ${fileDirname}: the currently opened file's dirname
-// ${fileExtname}: the currently opened file's extension
-// ${cwd}: the currently working directory of the spawned process
 {
   "version": "2.0.0",
   "tasks": [
@@ -14,8 +7,8 @@
       "command": "g++",
       "args": [
         "-g",
-        "-o",
-        "${fileBasenameNoExtension}",
+        "-o",        
+        "${fileDirname}/${fileBasenameNoExtension}",        
         "${file}"
       ],
       "group": {
@@ -30,7 +23,7 @@
       "command": "g++",
       "args": [
         "-o",
-        "${fileBasenameNoExtension}",
+        "${fileDirname}/${fileBasenameNoExtension}",        
         "${file}"
       ],
       "group": {
