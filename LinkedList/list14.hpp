@@ -37,12 +37,12 @@ class List : private ListNodeptr<T>
 {
     // Constructors, default, copy & move
   public:
-    List(){};
+    List() { std::cout << "\t List()" << endl; };
 
   public:
     List(const List<T> &l)
     {
-        std::cerr << "\tcalled List<T> copy constructor\n";
+        std::cout << "\t List(const List<T> &)" << endl;
         if (this != &l)
         {
             ListNode<T> *tmp = l.get();
@@ -53,20 +53,19 @@ class List : private ListNodeptr<T>
             }
         }
         else
-            std::cerr << "\t you tried to copy construct yourself, won't do the copy\n";
+            std::cout << "\t you tried to copy construct yourself, won't do the copy" << endl;
     };
 
   public:
-    List(List<T> &&l)
+    List(List<T> &&l) : ListNodeptr<T>(std::move(l))
     {
-        std::cerr << "\tcalled List<T> move constructor\n";
-        (*this).operator=(std::move(l));
+        std::cout << "\t List(List<T> &&)" << endl;
     };
 
   public:
     List<T> &operator=(const List<T> &l)
     {
-        std::cerr << "\tcalled List<T> copy operator\n";
+        std::cout << "\t operator=(const List<T> &)" << endl;
         if (this != &l)
         {
             this->reset(nullptr);
@@ -78,23 +77,23 @@ class List : private ListNodeptr<T>
             }
         }
         else
-            std::cerr << "\t you tried to copy operator on yourself, won't do the copy\n";
+            std::cout << "\t you tried to copy operator on yourself, won't do the copy\n";
         return *this;
     };
 
   public:
-    // of List<T> &operator=(List<T> &&l) = default;
-    List<T> &operator=(List<T> &&l) = default;
-    //{
-    // std::cerr << "\tcalled List<T> move operator for List<T> rvalue ref\n";
-    // //(*this).ListNodeptr<T>::operator=(std::move(l));
-    // return *this;
-    //};
+    // works with List<T> &operator=(List<T> &&l) = default;
+    List<T> &operator=(List<T> &&l)
+    {
+        std::cout << "\t &operator=(List<T>&&)" << endl;
+        *this = std::move(*(dynamic_cast<ListNodeptr<T>*>(&l)));
+        return *this;
+    };
 
   public:
     List<T> &operator=(ListNodeptr<T> &&l)
     {
-        std::cerr << "\tcalled List<T> move operator for ListNodeptr<T> rvalue ref\n";
+        std::cout << "\t &operator=(ListNodeptr<T> &&)" << endl;
         (*this).ListNodeptr<T>::operator=(std::move(l));
         return *this;
     };
@@ -234,22 +233,24 @@ class List : private ListNodeptr<T>
 template <class T>
 void swap(List<T> &a, List<T> &b)
 {
-    std::cerr << "a before: ";
-    a.output(std::cerr);
-    std::cerr << "\nb before: ";
-    b.output(std::cerr);
-    std::cerr << "\n";
+    std::cout << "a before swap: ";
+    a.output(std::cout);
+    std::cout << endl
+              << "b before swap: ";
+    b.output(std::cout);
+    std::cout << endl;
 
     List<T> tmp;
     tmp = std::move(b);
     b = std::move(a);
     a = std::move(tmp);
 
-    std::cerr << "a after: ";
-    a.output(std::cerr);
-    std::cerr << "\nb after: ";
-    b.output(std::cerr);
-    std::cerr << "\n";
+    std::cout << "a after swap: ";
+    a.output(std::cout);
+    std::cout << endl
+              << "b after swap: ";
+    b.output(std::cout);
+    std::cout << endl;
 }
 
 template <class T>
@@ -259,14 +260,39 @@ class ListNode
 
   public:
     List<T> next;
-    ListNode(const T &);
-    ~ListNode();
+    ListNode(const T &_item) : item(_item)
+    {
+        std::cout << "ListNode with " << item << " is constructed" << endl;
+        numberMade++;
+    };
+    ~ListNode()
+    {
+        std::cout << "ListNode with " << item << " gets destroyed" << endl;
+        numberRemoved++;
+    };
 
   protected:
     T item;
 #ifdef DEBUG
   public:
-    static bool control(int gemaakt, int removed);
+    static bool control(int made, int removed)
+    {
+        if (numberMade == made && numberRemoved == removed)
+        {
+            std::cout << "Succeeded control routine:" << endl;
+            std::cout << "Total nodes constructed: " << numberMade << " is " << made << endl;
+            std::cout << "Total nodes removed: " << numberRemoved << " is " << removed << endl;
+            return true;
+        }
+
+        else
+        {
+            std::cout << "Error during control routine:" << endl;
+            std::cout << "Total nodes constructed: " << numberMade << " should be " << made << endl;
+            std::cout << "Total nodes removed: " << numberRemoved << " should be " << removed << endl;
+            return false;
+        };
+    };
 
   protected:
     static int numberMade;
@@ -278,35 +304,6 @@ template <class T>
 int ListNode<T>::numberMade = 0;
 template <class T>
 int ListNode<T>::numberRemoved = 0;
-
-template <class T>
-ListNode<T>::ListNode(const T &_item) : item(_item)
-{
-    std::cerr << "Knoop met item " << item << " wordt gemaakt\n";
-    numberMade++;
-}
-
-template <class T>
-ListNode<T>::~ListNode()
-{
-    std::cerr << "Knoop met item " << item << " wordt removed\n";
-    numberRemoved++;
-}
-#ifdef DEBUG
-template <class T>
-bool ListNode<T>::control(int gemaakt, int removed)
-{
-    if (numberMade == gemaakt && numberRemoved == removed)
-        return true;
-    else
-    {
-        std::cerr << "Fout bij control:\n";
-        std::cerr << "Aantal gemaakte knopen   : " << numberMade << " (moet zijn: " << gemaakt << ")\n";
-        std::cerr << "Aantal removede knopen: " << numberRemoved << " (moet zijn: " << removed << ")\n";
-        throw "Control failed";
-    };
-};
-#endif
 
 template <class T>
 ostream &operator<<(ostream &os, const List<T> &l)
