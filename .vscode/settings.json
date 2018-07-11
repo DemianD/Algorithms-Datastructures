@@ -40,6 +40,6 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/*/*[!.jsonchpp]":true,        
+        "**/*/*[!.txtjsonchpp]":true,        
     }
 }
