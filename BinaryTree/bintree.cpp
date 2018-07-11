@@ -32,7 +32,7 @@ int main()
         cout<<endl;
 
         cout<<"Writing to file:"<<endl;
-        bt.output_to_file(cout);
+        bt.output_to_stream(cout);
 
         // bt.DFS(preorderfct, inorderfct, postorderfct);
 
