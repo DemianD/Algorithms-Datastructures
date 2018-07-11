@@ -1,6 +1,6 @@
 //C++14 compatible singly linked list
-#ifndef __List14_H
-#define __List14_H
+#ifndef __LIST14_HPP
+#define __LIST14_HPP
 //
 #define DEBUG
 //

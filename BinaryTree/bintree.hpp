@@ -1,5 +1,5 @@
-#ifndef __BINTREE_H
-#define __BINTREE_H
+#ifndef __BINTREE_HPP
+#define __BINTREE_HPP
 
 #include <cstdlib>
 #include <iostream>
