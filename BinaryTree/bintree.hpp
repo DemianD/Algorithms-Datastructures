@@ -67,7 +67,7 @@ class BinTree : private BinTreeNodeptr<T>
 
   public:
     int size() const;
-    istream &read(istream &);
+    istream &read_from_file(istream &);
     ostream &output_to_stream(ostream &) const;
     ostream &output_to_stream_bfs(ostream &) const;
     void DFS(function<void(T &&)>, function<void(T &&)>, function<void(T &&)>);
@@ -75,7 +75,7 @@ class BinTree : private BinTreeNodeptr<T>
     void BFS(function<void(T &&)>);
     friend istream &operator>>(istream &is, BinTree<T> &bt)
     {
-        return bt.read(is);
+        return bt.read_from_file(is);
     }
     friend ostream &operator<<(ostream &os, const BinTree<T> &bt)
     {
@@ -125,7 +125,7 @@ int BinTree<T>::size() const
 }
 
 template <class T>
-istream &BinTree<T>::read(istream &is)
+istream &BinTree<T>::read_from_file(istream &is)
 {
     string line;
     getline(is, line);
