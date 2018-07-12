@@ -53,7 +53,7 @@ class BinTree : private BinTreeNodeptr<T>
     using BinTreeNodeptr<T>::BinTreeNodeptr;
 
   public:
-    BinTree(){};
+    BinTree() = default;
     BinTree(const BinTree<T> &) = default;
     BinTree(BinTree<T> &&) = default;
     BinTree<T> &operator=(const BinTree<T> &) = default;
@@ -138,8 +138,8 @@ istream &BinTree<T>::read_from_file(istream &is)
         T value;
         int l, r;
         getline(is, line);
-        stringstream ss(line);                                // je kan met stringstream tokens inlezen op voorwaarde dat je zeker bent welk type wanneer komt
-        ss >> value >> l >> r;                                // hier weet je zeker dat je value van T type is, in ons vb gaat dat een string zijn, gevolgd door 2 ints l en r
+        stringstream ss(line); // je kan met stringstream tokens inlezen op voorwaarde dat je zeker bent welk type wanneer komt
+        ss >> value >> l >> r; // hier weet je zeker dat je value van T type is, in ons vb gaat dat een string zijn, gevolgd door 2 ints l en r
         knopen[i] = move(make_unique<BinTreeNode<T>>(value));
         children[i] = {l, r}; // gebruik initializer list om het pair in te vullen
         // terwijl je overloopt, als je knopen tegenkomt die children hebben ( dwz r of l != -1) dan kunnen die children in geen geval de root knoop zijn -> no_root[r of l] = true;
@@ -173,19 +173,19 @@ void BinTree<T>::recursive_tree_construct(int i, vector<BinTree> &&knopen, vecto
 {
     if (children[i].first != -1 && children[i].second != -1)
     {
-        recursive_tree_construct(children[i].first,move(knopen),move(children));
-        recursive_tree_construct(children[i].second,move(knopen),move(children));
+        recursive_tree_construct(children[i].first, move(knopen), move(children));
+        recursive_tree_construct(children[i].second, move(knopen), move(children));
         knopen[i]->left = move(knopen[children[i].first]);
         knopen[i]->right = move(knopen[children[i].second]);
     }
     else if (children[i].first != -1)
     {
-        recursive_tree_construct(children[i].first,move(knopen),move(children));
+        recursive_tree_construct(children[i].first, move(knopen), move(children));
         knopen[i]->left = move(knopen[children[i].first]);
     }
     else if (children[i].second != -1)
     {
-        recursive_tree_construct(children[i].second,move(knopen),move(children));
+        recursive_tree_construct(children[i].second, move(knopen), move(children));
         knopen[i]->right = move(knopen[children[i].second]);
     }
 }
@@ -240,9 +240,10 @@ ostream &BinTree<T>::output_to_stream_bfs(ostream &os) const
 template <class T>
 void BinTree<T>::DFS(function<void(T &&)> preorder, function<void(T &&)> inorder, function<void(T &&)> postorder)
 {
-    stack<pair<BinTreeNode<T> *, int>> ATW;
+
     if ((*this) != 0)
     {
+        stack<pair<BinTreeNode<T> *, int>> ATW;
         ATW.emplace((*this).get(), 1);
         while (!ATW.empty())
         {
@@ -264,6 +265,7 @@ void BinTree<T>::DFS(function<void(T &&)> preorder, function<void(T &&)> inorder
             case 3:
                 postorder(move(current->item));
                 ATW.pop();
+                break;
             }
         }
     }
@@ -272,9 +274,10 @@ void BinTree<T>::DFS(function<void(T &&)> preorder, function<void(T &&)> inorder
 template <typename T>
 void BinTree<T>::DFS(function<void(T &&)> orderfct, Order ord)
 {
-    stack<pair<BinTreeNode<T> *, int>> ATW;
+
     if ((*this) != 0)
     {
+        stack<pair<BinTreeNode<T> *, int>> ATW;
         ATW.emplace(this->get(), 1);
         while (!ATW.empty())
         {
@@ -309,6 +312,7 @@ void BinTree<T>::DFS(function<void(T &&)> orderfct, Order ord)
                     orderfct(move(current->item));
                 }
                 ATW.pop();
+                break;
             }
         }
     }
