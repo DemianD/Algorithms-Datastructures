@@ -15,6 +15,7 @@ using std::queue;
 #include <functional>
 using std::function;
 #include <memory>
+using std::make_unique;
 using std::unique_ptr;
 #include <utility>
 using std::move;
@@ -37,7 +38,7 @@ enum class Order
 };
 
 template <class T>
-class BST : private BSTnodeptr<T>
+class BST : public BSTnodeptr<T>
 {
     using BSTnodeptr<T>::BSTnodeptr;
 
@@ -150,8 +151,63 @@ class BST : private BSTnodeptr<T>
         //return bb.output_to_stream_bfs(os);
         return bst.output_to_stream(os);
     }
-    void add(const T &);
-    void add(T &&);
+    void add(const T &_item)
+    {
+        if (*this)
+        {
+            if (_item <= this->get()->item)
+            {
+                if (!this->get()->left)
+                {
+                    this->get()->left = move(BST<T>(_item));
+                }
+                else
+                {
+                    this->get()->left.add(_item);
+                }
+            }
+            else
+            {
+                if (!this->get()->right)
+                {
+                    this->get()->right = move(BST<T>(_item));
+                }
+                else
+                {
+                    this->get()->right.add(_item);
+                }
+            }
+        }
+    }
+
+    void add(T &&_item)
+    {
+        if (*this)
+        {
+            if (_item <= this->get()->item)
+            {
+                if (!this->get()->left)
+                {
+                    this->get()->left = move(BST<T>(move(_item)));
+                }
+                else
+                {
+                    this->get()->left.add(_item); // do you write add(move(_item))?
+                }
+            }
+            else
+            {
+                if (!this->get()->right)
+                {
+                    this->get()->right = move(BST<T>(move(_item)));
+                }
+                else
+                {
+                    this->get()->right.add(_item);
+                }
+            }
+        }
+    }
 
     void remove(const T &);
     void remove(T &&);
