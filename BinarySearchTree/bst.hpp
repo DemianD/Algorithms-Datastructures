@@ -210,23 +210,7 @@ class BST : public BSTnodeptr<T>
     }
 
     void remove(const T &);
-    void remove(T &&);
-
-    void test()
-    {
-        cout << "called test" << endl;
-        cout << this->get()->item << endl;
-    }
-
-    void testvec()
-    {
-        cout << "called testvec" << endl;
-        for (const auto &x : this->get()->item)
-        {
-            cout << x << ", ";
-        }
-        cout << endl;
-    }
+    void remove(T &&);   
 
     BST<T> *find(const T &key)
     {
@@ -293,6 +277,10 @@ class BSTnode
         //os << "\t Right child: " << *(_node.right.get()) << endl;
         return os;
     };
+
+    const T& getItem() {
+        return item;
+    }
 
   private:
     T item;
