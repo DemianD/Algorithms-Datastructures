@@ -116,7 +116,7 @@ int main()
         cout << "quicksorterrpiv(v)" << endl;
         cout << v;
 
-        //quicksorterrpiv.measure(10, 10000, cout);
+        quicksorterrpiv.measure(10, 10000, cout);
 
         // 9. Quicksort dual pivot
         v.fill_random_no_duplicates();
