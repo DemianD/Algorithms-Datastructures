@@ -36,9 +36,9 @@ void Sortingmethod<T>::measure(int shortest, int longest, ostream &os)
     Chrono chron;
     os << setw(10) << "length" << setw(10) << "random" << setw(12) << "sorted" << setw(12) << "inverted" << endl;
 
-    for (int i = 1; i <= longest; i *= 10)
+    for (int i = shortest; i <= longest; i *= 10)
     {
-        Sortvector<T> vec(shortest * i);
+        Sortvector<T> vec(i);
 
         os << setw(10) << i;
 
@@ -182,6 +182,7 @@ class TDMergeSort : public Sortingmethod<T>
   private:
     void mergesort(vector<T> &, int, int, vector<T> &) const;
     void merge(vector<T> &, int, int, int, vector<T> &) const;
+    void merge_less_memory_efficient(vector<T> &, int, int, int, vector<T> &) const;
 
   public:
     void operator()(vector<T> &v) const;
@@ -206,29 +207,37 @@ void TDMergeSort<T>::mergesort(vector<T> &v, int left, int right, vector<T> &tem
     }
 }
 // old merge
-//template<typename T>
-//void TDMergeSort<T>::merge_(vector<T>& v, int left, int middle, int right, vector<T>& temporary) const{
-//        int j = left;
-//        int li = left;
-//        int ri = middle;
-//        while (li < middle && ri < right) {
-//            if (v[li] < v[ri]) {
-//                temporary[j++] = v[li++];
-//            } else {
-//                temporary[j++] = v[ri++];
-//            }
-//        }
-//
-//        while (li < middle) {
-//            temporary[j++]=v[li++];
-//        }
-//        while (ri < right) {
-//            temporary[j++]=v[ri++];s
-//        }
-//    for(int i=left;i<right;i++){
-//        v[i]=move(temporary[i]);
-//    }
-//}
+template <typename T>
+void TDMergeSort<T>::merge_less_memory_efficient(vector<T> &v, int left, int middle, int right, vector<T> &temporary) const
+{
+    int j = left;
+    int li = left;
+    int ri = middle;
+    while (li < middle && ri < right)
+    {
+        if (v[li] < v[ri])
+        {
+            temporary[j++] = v[li++];
+        }
+        else
+        {
+            temporary[j++] = v[ri++];
+        }
+    }
+
+    while (li < middle)
+    {
+        temporary[j++] = v[li++];
+    }
+    while (ri < right)
+    {
+        temporary[j++] = v[ri++];
+    }
+    for (int i = left; i < right; i++)
+    {
+        v[i] = move(temporary[i]);
+    }
+}
 template <typename T>
 void TDMergeSort<T>::merge(vector<T> &v, int left, int middle, int right, vector<T> &temporary) const
 {
@@ -337,7 +346,25 @@ void QuicksortLpiv<T>::quicksort(vector<T> &v, int l, int r) const
 {
     if (l < r)
     {
-        // L is the pivot, you can choose R if you like, but this will require finding a bigger value L, instead of a smaller one R
+        if (r - l > 1)
+        {
+            // selection trick
+            int mid = l + (r - l) / 2;
+            if (v[mid] < v[r])
+            {
+                swap(v[mid], v[r]);
+            }
+            if (v[r] < v[l])
+            {
+                swap(v[r], v[l]);
+            }
+            if (v[mid] < v[l])
+            {
+                swap(v[mid], v[l]);
+            }
+            cout << l << " " << mid << " " << r << endl;
+            cout <<v[l]<<" " <<v[mid]<<" " << v[r] <<endl;
+        }
         T pivot = v[l];
         int i = l;
         int j = r;
@@ -380,6 +407,23 @@ void QuicksortRpiv<T>::quicksort(vector<T> &v, int l, int r) const
 {
     if (l < r)
     {
+        if (r - l > 1)
+        {
+            // selection trick
+            int mid = l + (r - l) / 2;
+            if (v[mid] < v[l])
+            {
+                swap(v[mid], v[l]);
+            }
+            if (v[r] < v[l])
+            {
+                swap(v[r], v[l]);
+            }
+            if (v[mid] < v[r])
+            {
+                swap(v[mid], v[r]);
+            }
+        }
         T pivot = v[r];
         int i = l;
         int j = r;
@@ -525,7 +569,7 @@ void CountingSort2::operator()(vector<int> &v) const
             gr = t;
     }
 
-    vector<int> freq(gr - kl + 1);
+    vector<int> freq(gr+1);
     for (int t : v)
     {
         freq[t]++;
@@ -539,7 +583,7 @@ void CountingSort2::operator()(vector<int> &v) const
     vector<int> tmp(v.size());
     for (int i = 0; i < v.size(); i++)
     {
-        tmp[freq[v[i]]] = v[i];
+        tmp[freq[v[i]]-1] = v[i];
         freq[v[i]] -= 1;
     }
     v = move(tmp);

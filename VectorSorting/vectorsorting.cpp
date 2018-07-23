@@ -60,7 +60,7 @@ int main()
         STLSort<Intstring> stlsorter2;
         stlsorter2(strv);
         cout << strv;
-        stlsorter2.measure(10, 1000000, cout);
+        stlsorter2.measure(10, 1000, cout);
 
         // 3. Selection sort
         v.fill_random_no_duplicates();
@@ -106,7 +106,7 @@ int main()
         cout << "quicksorterlpiv(v)" << endl;
         cout << v;
 
-        quicksorterlpiv.measure(10, 1000, cout);
+        quicksorterlpiv.measure(1, 10000, cout);
 
         // 8. Quicksort right pivot
         v.fill_random_no_duplicates();
@@ -116,7 +116,7 @@ int main()
         cout << "quicksorterrpiv(v)" << endl;
         cout << v;
 
-        quicksorterrpiv.measure(10, 1000, cout);
+        //quicksorterrpiv.measure(10, 10000, cout);
 
         // 9. Quicksort dual pivot
         v.fill_random_no_duplicates();
@@ -126,7 +126,7 @@ int main()
         cout << "quicksortdual(v)" << endl;
         cout << v;
 
-        quicksortdual.measure(10, 1000, cout);
+        //quicksortdual.measure(10, 10000, cout);
 
         // 10. counting sort
         Sortvector<int> w(8);
@@ -139,7 +139,7 @@ int main()
 
         // 11. counting sort 2
         Sortvector<int> x(15);
-        x.assign({2, 8, 97, 25, 84, 67, 87, 24, 0, 2, 2, 5, 67, 87, 99});
+        x.assign({2, 8, 97, 25, 84, 67, 87, 24, 0, 2, 2, 5, 67, 87, 99});        
         cout << x;
         CountingSort2 countingsorter2;
         countingsorter2(x);
