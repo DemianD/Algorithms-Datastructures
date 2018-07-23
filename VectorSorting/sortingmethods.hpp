@@ -45,7 +45,7 @@ void Sorteermethode<T>::measure(int kortste, int langste, ostream& os){
 
         os<<setw(10)<<i;
 
-        vec.vul_random();
+        vec.fill_random();
         chron.start();
         (*this)(vec);
         chron.stop();
@@ -56,7 +56,7 @@ void Sorteermethode<T>::measure(int kortste, int langste, ostream& os){
         chron.stop();
         os<<setw(12)<<chron.elapsed();
 
-        vec.draai_om();
+        vec.reverse();
         chron.start();
         (*this)(vec);
         chron.stop();

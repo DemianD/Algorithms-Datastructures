@@ -1,11 +1,9 @@
 #ifndef __SORTVECTOR_HPP
 #define __SORTVECTOR_HPP
 /**
- \class sortvector
- \brief is een klasse van sorteerbare vectoren
- Bovenop de vectoreigenschappen zijn er hulpfuncties om sorteervergelijkingen
- te vergemakkelijken.
-*/
+ * A Sortvector class, a templated vector meant to be sorted
+ * with operations to fill, reverse, test or show it * 
+ * */
 #include <iostream>
    using std::istream;
    using std::ostream;
@@ -13,9 +11,9 @@
    using std::swap;
    using std::cout;
    using std::endl;
-#include <iomanip>   // voor setw
+#include <iomanip>
    using std::setw;
-#include <cstdlib>   // voor rand - opletten!! 
+#include <cstdlib>
 #include <vector>
     using std::vector;
 #include <map>
@@ -25,67 +23,65 @@ template<class T>
 class Sortvector:public vector<T>{
   public:
 
-    /// \fn Constructor: het argument geeft de grootte aan
-    /// bij constructie zal de tabel opgevuld worden met
-    /// n verschillende Ts in random volgorde
-    /// (zie hulplidfuncties)
+    // The constructor takes a size argument, the vector will be randomly filled
     Sortvector(int);
-    using vector<T>::vector;
-    /// \fn Constructor inheritance van vector is vereist om in de implementatie
-    /// Sortvector(int grootte): vector<T>(grootte) te mogen schrijven
 
+    // Constructor inheritance from vector is required if you want to be able to write expressions like
+    // Sortvector(int size): vector<T>(size) 
+    using vector<T>::vector;
+
+    // We only ever intend to create and sort a vector, no copying or moving them
     Sortvector(const Sortvector<T>& v) = delete;
     Sortvector<T>& operator=(const Sortvector<T>& v) = delete;
     Sortvector<T>& operator=(Sortvector<T>&& v) = delete;
     Sortvector(Sortvector<T>&& v) = delete;
 
-    /// \fn vul_range vul vector met de waarden T(0)...T(size()-1) in volgorde
-    void vul_range();
-    void draai_om();
-    void vul_omgekeerd();
-    /// \fn Knuth-Fisher-Yates zie impl voor algo
+    // fill_sequential fills all available slots of the vector with values, by calling this constructor sequence
+    // T(0)..T(size()-1)
+    void fill_sequential();
+    void reverse();
+    void fill_reverse();
+    // Knuth-Fisher-Yates shuffle strategy
     void shuffle();
 
 
-    void vul_random_zonder_dubbels();
-    void vul_random(); //< nog niet implementeren
+    void fill_random_no_duplicates();
+    void fill_random();
 
-    bool is_gesorteerd() const;
-    /// \fn is_range controleert of *this eruit ziet als het resultaat van vul_range(), d.w.z.
-    /// dat, voor alle i, (*this)[i]==T(i);
-    bool is_range() const;
+    bool is_sorted() const;
+    // is_sequential checks whether *this looks like the result of calling fill_sequential(), meaning for every i (*this)[i]==T(i)    
+    bool is_sequential() const;
 
     friend ostream& operator<<(ostream& os, const Sortvector<T>& s){
-        s.schrijf(os);
+        s.print(os);
         return os;
     }
 
   private: 
-    void schrijf(ostream & os)const;
+    void print(ostream & os)const;
 };
 
 template <class T>
 Sortvector<T>::Sortvector(int grootte): vector<T>(grootte) {
-vul_range();
+    fill_sequential();
 }
 
 template <class T>
-void Sortvector<T>::vul_range() {
+void Sortvector<T>::fill_sequential() {
     for(int i=0;i< this->size();i++){
-        this->at(i)=T(i);
-        //this->operator[](i)=i; // werkt ook
+        this->at(i)=T(i);        
     }
 }
 
 template <class T>
-void Sortvector<T>::draai_om() {
+void Sortvector<T>::reverse() {
     for(int i=0;i<this->size()/2;i++){
         swap(this->at(i),this->at(this->size()-1-i));
     }
 }
 
 template <class T>
-void Sortvector<T>::vul_omgekeerd() {
+void Sortvector<T>::fill_reverse() {
     for(int i=this->size() -1; i>= 0; i--){
         this->at(i)=T(i);
     }
@@ -106,7 +102,7 @@ void Sortvector<T>::shuffle() {
 }
 
 template <class T>
-void Sortvector<T>::vul_random() {
+void Sortvector<T>::fill_random() {
    for(int i=0; i<this->size();i++){
        this->at(i)=T(rand());
    }
@@ -114,7 +110,7 @@ void Sortvector<T>::vul_random() {
 
 
 template <class T>
-void Sortvector<T>::vul_random_zonder_dubbels() {
+void Sortvector<T>::fill_random_no_duplicates() {
     map<int,bool> present;
     int tmp;
     for(int i=0;i<this->size();i++){
@@ -128,27 +124,27 @@ void Sortvector<T>::vul_random_zonder_dubbels() {
 }
 
 template <class T>
-bool Sortvector<T>::is_gesorteerd() const {
-    bool is_gesorteerd = true;
-    for(int i=0;is_gesorteerd && i<this->size()-1;i++){
-        if((*this)[i] > (*this)[i+1]) is_gesorteerd=false;
+bool Sortvector<T>::is_sorted() const {
+    bool is_sorted = true;
+    for(int i=0;is_sorted && i<this->size()-1;i++){
+        if((*this)[i] > (*this)[i+1]) is_sorted=false;
     }
-    return is_gesorteerd;
+    return is_sorted;
 }
 
 template <class T>
-bool Sortvector<T>::is_range() const {
-    bool is_range=true;
-    for(int i=0;is_range&&i<this->size();i++){
-        if((*this)[i]!=T(i)) is_range=false;
+bool Sortvector<T>::is_sequential() const {
+    bool is_sequential=true;
+    for(int i=0;is_sequential&&i<this->size();i++){
+        if((*this)[i]!=T(i)) is_sequential=false;
     }
-    return is_range;
+    return is_sequential;
 }
 
 
 template <class T>
-void Sortvector<T>::schrijf(ostream & os)const{
-    for(auto&& t : *this){
+void Sortvector<T>::print(ostream & os)const{
+    for(const auto& t : *this){
         os<<t<<" ";
     }
     os<<"\n";

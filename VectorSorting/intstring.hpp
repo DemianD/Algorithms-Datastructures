@@ -6,10 +6,11 @@
 #include <fstream>
 #include <string>
 using std::string;
-/** \class Intstring
- \brief stringklasse met een constructor die een getal gebruikt
- overerving van string is veilig: er worden geen extra gegevensvelden toegevoegd.
-*/
+/**
+ * Intstring
+ * 
+ * inheritance from std::string is safe because we don't add fields that require dynamic memory mgmt
+ * */
 
 class Intstring: public string{
     public:
@@ -24,4 +25,3 @@ class Intstring: public string{
 };
 
 #endif
-;

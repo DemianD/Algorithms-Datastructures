@@ -17,23 +17,23 @@ int main() {
         srand(time(0));
         cout << "Hello, World!" << endl;
         Sortvector<double> v(25);
-        cout << "Normal Sortvector, is gesorteerd ? " << v.is_gesorteerd() << " en is range? " << v.is_range() << endl;
+        cout << "Normal Sortvector, is sorted ? " << v.is_sorted() << " and is sequential? " << v.is_sequential() << endl;
         cout << v;
         v.push_back(1);
-        cout << "Normal Sortvector, is gesorteerd ? " << v.is_gesorteerd() << " en is range? " << v.is_range() << endl;
+        cout << "Normal Sortvector, is sorted ? " << v.is_sorted() << " and is sequential? " << v.is_sequential() << endl;
         cout << v;
 
 
-        cout << "draai_om()" << endl;
-        v.draai_om();
+        cout << "reverse()" << endl;
+        v.reverse();
         cout << v;
 
         cout << "shuffle()" << endl;
         v.shuffle();
         cout << v;
 
-        cout << "vul_random()" << endl;
-        v.vul_random();
+        cout << "fill_random()" << endl;
+        v.fill_random();
         cout << v;
 
         // 1. STL sort
@@ -44,25 +44,25 @@ int main() {
         stlsorter.measure(10, 10000, cout);
 
 //        // 2. Insertion sort
-//        cout << "vul_random_zonder_dubbels()" << endl;
-//        v.vul_random_zonder_dubbels();
+//        cout << "fill_random_no_duplicates()" << endl;
+//        v.fill_random_no_duplicates();
 //        cout << v;
 //        InsertionSort<double> insertionsorter;
 //        insertionsorter(v);
 //        cout << "insertionsorter(v)" << endl;
 //        cout << v;
 //        insertionsorter.measure(10, 1000,
-//                             cout); // Niet te hoog zetten, insertionsort is worst case O(n²) en avg case ook O(n²), 10000->al 60+sec bij omgekeerd
+//                             cout); // Niet te hoog zetten, insertionsort is worst case O(n²) and avg case ook O(n²), 10000->al 60+sec bij omgekeerd
 //
 //        cout << "Sortvector<Intstring>" << endl;
 //        Sortvector<Intstring> strv(5);
-//        strv.vul_random_zonder_dubbels();
+//        strv.fill_random_no_duplicates();
 //        STLSort<Intstring> stlsorter2;
 //        stlsorter2(strv);
 //        cout << strv;
 ////    stlsorter2.measure(10,1000000,cout);
 //
-//        v.vul_random_zonder_dubbels();
+//        v.fill_random_no_duplicates();
 //        cout << v;
 //        SelectionSort<double> selectionsorter;
 //        selectionsorter(v);
@@ -71,7 +71,7 @@ int main() {
 //        selectionsorter.measure(10, 1000, cout);
 //
 //        // 3. Shellsort
-//        v.vul_random_zonder_dubbels();
+//        v.fill_random_no_duplicates();
 //        cout << v;
 //        ShellSort<double> shellsorter;
 //        shellsorter(v);
@@ -80,7 +80,7 @@ int main() {
 //        shellsorter.measure(10, 1000, cout);
 //
         // 4. TD merge sort
-        v.vul_random_zonder_dubbels();
+        v.fill_random_no_duplicates();
         cout << v;
         TDMergeSort<double> tdmergesorter;
         tdmergesorter(v);
@@ -89,7 +89,7 @@ int main() {
         tdmergesorter.measure(10, 1000, cout);
 //
 //        // 5. BU merge sort
-//        v.vul_random_zonder_dubbels();
+//        v.fill_random_no_duplicates();
 //        cout << v;
 //        BUMergeSort<double> bumergesorter;
 //        bumergesorter(v);
@@ -98,7 +98,7 @@ int main() {
 //        bumergesorter.measure(10, 1000, cout);
 
     // 6. Quicksort left pivot
-    v.vul_random_zonder_dubbels();
+    v.fill_random_no_duplicates();
     cout<<v;
     QuicksortLpiv<double> quicksorterlpiv;
     quicksorterlpiv(v);
@@ -108,7 +108,7 @@ int main() {
 //    quicksorterlpiv.measure(10,1000,cout);
 //
 //    // 7. Quicksort right pivot
-//    v.vul_random_zonder_dubbels();
+//    v.fill_random_no_duplicates();
 //    cout<<v;
 //    QuicksortRpiv<double> quicksorterrpiv;
 //    quicksorterrpiv(v);
@@ -118,7 +118,7 @@ int main() {
 //    quicksorterrpiv.measure(10,1000,cout);
 //
 //    // 8. Quicksort dual pivot
-//    v.vul_random_zonder_dubbels();
+//    v.fill_random_no_duplicates();
 //    cout<<v;
 //    DualPivotQuicksort<double> quicksortdual;
 //    quicksortdual(v);
