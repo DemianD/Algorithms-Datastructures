@@ -126,7 +126,7 @@ int main()
         cout << "quicksortdual(v)" << endl;
         cout << v;
 
-        //quicksortdual.measure(10, 10000, cout);
+        quicksortdual.measure(10, 10000, cout);
 
         // 10. counting sort
         Sortvector<int> w(8);
