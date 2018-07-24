@@ -354,16 +354,14 @@ void QuicksortLpiv<T>::quicksort(vector<T> &v, int l, int r) const
             {
                 swap(v[mid], v[r]);
             }
-            if (v[r] < v[l])
+            if (v[l] < v[r])
             {
-                swap(v[r], v[l]);
+                swap(v[l], v[r]);
             }
             if (v[mid] < v[l])
             {
                 swap(v[mid], v[l]);
-            }
-            // cout << l << " " << mid << " " << r << endl;
-            // cout <<v[l]<<" " <<v[mid]<<" " << v[r] <<endl;
+            }            
         }
         T pivot = v[l];
         int i = l;
