@@ -47,7 +47,10 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
         return *this;
     };
 
-    BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key,Data>>(move(nodeptr)) { cout << "BST(unique_ptr<BSTnode>&&)" << endl; };
+    BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key, Data>>(move(nodeptr))
+    {
+        cout << "BST(unique_ptr<BSTnode>&&)" << endl;
+    };
 
     BST<Key, Data> &operator=(unique_ptr<BSTnode<Key, Data>> &&nodeptr)
     {
@@ -112,6 +115,7 @@ void BST<Key, Data>::search(const Key &key, BSTnode<Key, Data> *&parent, BST<Key
 {
     location = this;
     parent = 0;
+    // Fixed while location => *location !!!
     while (*location && (*location)->key != key)
     {
         parent = location->get();
