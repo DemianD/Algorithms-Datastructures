@@ -45,9 +45,9 @@ class BST : public BSTnodeptr<T>
   public:
     BST<T>() { cout << "BST<T>()" << endl; };
     ~BST<T>() { cout << "~BST<T>()" << endl; }
-    BST<T>(const BST<T> &) = default;
+    BST<T>(const BST<T> &) = delete;
     BST<T>(BST<T> &&) = default;
-    BST<T> &operator=(const BST<T> &) = default;
+    BST<T> &operator=(const BST<T> &) = delete;
     BST<T> &operator=(BST<T> &&) = default;
 
     BST<T>(const T &_item) : BSTnodeptr<T>(new BSTnode<T>(_item)) { cout << "BST<T>(const&)" << endl; };

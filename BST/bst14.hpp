@@ -29,23 +29,12 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     using unique_ptr<BSTnode<Key, Data>>::unique_ptr;
 
   public:
-    BST<Key, Data>() { cout << "BST()" << endl; };
-    ~BST<Key, Data>() { cout << "~BST()" << endl; };
-    BST<Key, Data>(const BST<Key, Data> &other) { cout << "BST(const BST&)" << endl; };
-    BST<Key, Data>(BST<Key, Data> &&other) { cout << "BST(BST&&)" << endl; };
-    BST<Key, Data> &operator=(const BST<Key, Data> &other)
-    {
-        cout << "operator=(const BST&)" << endl;
-        // deep copy
-        cout << "deep copy still required" << endl;
-        return *this;
-    };
-    BST<Key, Data> &operator=(BST<Key, Data> &&other)
-    {
-        cout << "operator=(BST&&)" << endl;
-        this->unique_ptr<BSTnode<Key, Data>>::operator=(move(other));
-        return *this;
-    };
+    BST<Key, Data>() = default;
+    // ~BST<Key, Data>() = default;
+    // BST<Key, Data>(const BST<Key, Data> &other) = delete;
+    // BST<Key, Data>(BST<Key, Data> &&other) = default;
+    // BST<Key, Data> &operator=(const BST<Key, Data> &other) = delete;
+    // BST<Key, Data> &operator=(BST<Key, Data> &&other) = default;
 
     BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key, Data>>(move(nodeptr))
     {
