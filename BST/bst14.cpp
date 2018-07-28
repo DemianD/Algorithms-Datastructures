@@ -7,12 +7,16 @@ using namespace std;
 bool creationTest();
 bool sizeTest();
 bool depthTest();
+bool rotateTest();
+
+void print_break();
 
 int main(int argc, char **argv)
 {
     creationTest() ? cout << "Creation test succeeded" << endl : cerr << "Creation test failed" << endl;    
     sizeTest() ? cout << "Size test succeeded" << endl : cerr << "Size test failed" << endl;
     depthTest() ? cout << "Depth test succeeded" << endl : cerr << "Depth test failed" << endl;
+    rotateTest() ? cout << "Rotate test succeeded"<<endl:cerr<<"Rotate test failed"<<endl;
     return 0;
 }
 
@@ -81,4 +85,43 @@ bool depthTest()
     t3.add(100, 100);
 
     return t1.depth() == 4 && t2.depth() == 4 && t3.depth() == 0;
+}
+
+bool rotateTest(){    
+    BST<int,int> t1;
+    t1.add(6,6);
+    t1.add(8,8);
+    t1.add(4,4);
+    t1.add(3,3);
+    t1.add(5,5);
+    t1.add(7,7);
+    t1.add(9,9);   
+    t1.pretty_print();
+    print_break();
+    t1.rotate(true);
+    t1.pretty_print();
+    print_break();
+    t1.rotate(false);
+    t1.pretty_print();
+    print_break();
+    t1->getChild(false).rotate(true);
+    t1.pretty_print();
+    print_break();
+
+    BST<int,int> t2;
+    t2.add(2,2);
+    t2.add(3,3);    
+    t2.add(1,1);
+    t2.pretty_print();
+    print_break();
+    t2.rotate(false);
+    t2.pretty_print();
+    print_break();
+        
+
+    return true;
+}
+
+void print_break() {
+    cout<< "\n===========\n";
 }

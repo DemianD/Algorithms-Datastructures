@@ -2,13 +2,14 @@
 #define __BST_HPP
 #include <cstdlib>
 #include <iostream>
+using std::cerr;
 using std::cout;
 using std::endl;
+#include <iomanip>
 #include <queue>
 #include <memory>
 #include <functional>
 
-using std::cerr;
 using std::make_unique;
 using std::ostream;
 using std::unique_ptr;
@@ -36,10 +37,9 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     // BST<Key, Data> &operator=(const BST<Key, Data> &other) = delete;
     // BST<Key, Data> &operator=(BST<Key, Data> &&other) = default;
 
-    BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key, Data>>(move(nodeptr))
-    {
-        //cout << "BST(unique_ptr<BSTnode>&&)" << endl;
-    };
+    BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key, Data>>(move(nodeptr)){
+                                                                   //cout << "BST(unique_ptr<BSTnode>&&)" << endl;
+                                                               };
 
     BST<Key, Data> &operator=(unique_ptr<BSTnode<Key, Data>> &&nodeptr)
     {
@@ -60,6 +60,7 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     int depth() const;
     void makeImbalanced();
     void makeBalanced();
+    void pretty_print(int indent = 0) const;
 
   protected:
     // The search function looks for key in the tree and return the tree containing the key or an empty tree if the key isn't in the tree
@@ -77,14 +78,31 @@ class BSTnode
     {
         //cout << "BSTnode()" << endl;
     }
-    BSTnode(const Key &sl, const Data &d) : key{sl}, data(d), parent(0){
-                                                                  //cout << "BSTnode(const Key &, const Data &)" << endl;
-                                                              };
-    BSTnode(Key &&sl, Data &&d) : key{move(sl)}, data(move(d)), parent(0){
-                                                                    //cout << "BSTnode(Key &&,Data &&)" << endl;
-                                                                };
+    BSTnode(const Key &sl, const Data &d) : key{sl}, data(d), parent(0)
+    {
+        //cout << "BSTnode(const Key &, const Data &)" << endl;
+    }
+    BSTnode(Key &&sl, Data &&d) : key{move(sl)}, data(move(d)), parent(0)
+    {
+        //cout << "BSTnode(Key &&,Data &&)" << endl;
+    }
 
-  protected:
+    const Data &getData() const
+    {
+        return data;
+    }
+
+    const Key &getKey() const
+    {
+        return key;
+    }
+
+  
+    BST<Key, Data> &&getChild(bool l)
+    {
+        return l ? move(left) : move(right);
+    }
+    protected:
     Key key;
     Data data;
     BSTnode<Key, Data> *parent;
@@ -108,16 +126,6 @@ void BST<Key, Data>::add(const Key &key, const Data &data)
     };
 };
 
-template <class Key, class Data>
-void BST<Key,Data>::rotate(bool left){
-    if(left){
-        (*this)->parent->parent
-    }
-    else {
-
-    }
-}
-
 // To learn more about the reference to pointer *& read https://www.codeproject.com/Articles/4894/Pointer-to-Pointer-and-Reference-to-Pointer
 template <class Key, class Data>
 void BST<Key, Data>::search(const Key &key, BSTnode<Key, Data> *&parent, BST<Key, Data> *&location)
@@ -137,6 +145,31 @@ void BST<Key, Data>::search(const Key &key, BSTnode<Key, Data> *&parent, BST<Key
             location = &(*location)->left;
     };
 };
+
+template <class Key, class Data>
+void BST<Key, Data>::rotate(bool left)
+{
+    if (*this)
+    {
+
+        BST<Key, Data> child = move((*this)->getChild(!left));
+        if (child)
+        {
+
+            BST<Key, Data> subchild = move(child->getChild(left));
+            if (subchild)
+            {
+                (*this)->getChild(!left) = move(subchild);
+            }
+
+            child->parent = (*this)->parent;
+            (*this)->parent = child.get();
+            child->getChild(left) = move(*this);
+            *this = move(child);
+        }
+    }
+}
+
 template <class Key, class Data>
 void BST<Key, Data>::inorder(std::function<void(const BSTnode<Key, Data> &)> visit) const
 {
@@ -167,6 +200,25 @@ void BST<Key, Data>::postorder(std::function<void(const BSTnode<Key, Data> &)> v
         (*this)->left.postorder(visit);
         (*this)->right.postorder(visit);
         visit(**this);
+    }
+}
+
+template <class Key, class Data>
+void BST<Key, Data>::pretty_print(int indent) const
+{
+    if (*this)
+    {
+        if ((*this)->right)
+            (*this)->right.pretty_print(indent + 4);
+
+        if (indent)
+        {
+            cout << std::setw(indent) << ' ';
+        }
+        cout << (*this)->key << ',' << (*this)->data << '\n';
+
+        if ((*this)->left)
+            (*this)->left.pretty_print(indent + 4);
     }
 }
 
