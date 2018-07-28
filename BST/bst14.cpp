@@ -10,8 +10,7 @@ bool depthTest();
 
 int main(int argc, char **argv)
 {
-    creationTest() ? cout << "Creation test succeeded" << endl : cerr << "Creation test failed" << endl;
-    ;
+    creationTest() ? cout << "Creation test succeeded" << endl : cerr << "Creation test failed" << endl;    
     sizeTest() ? cout << "Size test succeeded" << endl : cerr << "Size test failed" << endl;
     depthTest() ? cout << "Depth test succeeded" << endl : cerr << "Depth test failed" << endl;
     return 0;
@@ -45,13 +44,15 @@ bool creationTest()
 
 bool sizeTest()
 {
-    BST<int, double> t;
-    t.add(5, 3.9);
-    t.add(9, 2.5);
-    t.add(12, 2.0);
-    t.add(4, 1.9);
+    BST<int, double> t1;
+    t1.add(5, 3.9);
+    t1.add(9, 2.5);
+    t1.add(12, 2.0);
+    t1.add(4, 1.9);
 
-    return t.size() == 4;
+    BST<int, int> t2;
+
+    return t1.size() == 4 && t2.size() == 0;
 }
 
 bool depthTest()

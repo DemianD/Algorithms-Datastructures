@@ -56,8 +56,8 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     void postorder(std::function<void(const BSTnode<Key, Data> &)> visit) const;
     void output(ostream &os) const;
     bool repOK() const;
-    int size();
-    int depth();
+    int size() const;
+    int depth() const;
     void makeImbalanced();
     void makeBalanced();
 
@@ -107,6 +107,16 @@ void BST<Key, Data>::add(const Key &key, const Data &data)
         *location = move(newnode);
     };
 };
+
+template <class Key, class Data>
+void BST<Key,Data>::rotate(bool left){
+    if(left){
+        (*this)->parent->parent
+    }
+    else {
+
+    }
+}
 
 // To learn more about the reference to pointer *& read https://www.codeproject.com/Articles/4894/Pointer-to-Pointer-and-Reference-to-Pointer
 template <class Key, class Data>
@@ -180,7 +190,7 @@ void BST<Key, Data>::output(ostream &os) const
 }
 
 template <class Key, class Data>
-int BST<Key, Data>::size()
+int BST<Key, Data>::size() const
 {
     if (*this)
     {
@@ -193,7 +203,7 @@ int BST<Key, Data>::size()
 }
 
 template <class Key, class Data>
-int BST<Key, Data>::depth()
+int BST<Key, Data>::depth() const
 {
     if (*this)
     {
