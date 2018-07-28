@@ -38,12 +38,12 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
 
     BST<Key, Data>(unique_ptr<BSTnode<Key, Data>> &&nodeptr) : unique_ptr<BSTnode<Key, Data>>(move(nodeptr))
     {
-        cout << "BST(unique_ptr<BSTnode>&&)" << endl;
+        //cout << "BST(unique_ptr<BSTnode>&&)" << endl;
     };
 
     BST<Key, Data> &operator=(unique_ptr<BSTnode<Key, Data>> &&nodeptr)
     {
-        cout << "operator=(BSTnode&&)" << endl;
+        //cout << "operator=(BSTnode&&)" << endl;
         this->unique_ptr<BSTnode<Key, Data>>::operator=(move(nodeptr));
         return *this;
     };
@@ -52,8 +52,11 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     void add(const Key &key, const Data &data);
     void rotate(bool left);
     void inorder(std::function<void(const BSTnode<Key, Data> &)> visit) const;
+    void preorder(std::function<void(const BSTnode<Key, Data> &)> visit) const;
+    void postorder(std::function<void(const BSTnode<Key, Data> &)> visit) const;
     void output(ostream &os) const;
     bool repOK() const;
+    int size();
     int depth();
     void makeImbalanced();
     void makeBalanced();
@@ -70,9 +73,16 @@ class BSTnode
     friend class BST<Key, Data>;
 
   public:
-    BSTnode() : parent(0) { cout << "BSTnode()" << endl; }
-    BSTnode(const Key &sl, const Data &d) : key{sl}, data(d), parent(0) { cout << "BSTnode(const Key &, const Data &)" << endl; };
-    BSTnode(Key &&sl, Data &&d) : key{move(sl)}, data(move(d)), parent(0) { cout << "BSTnode(Key &&,Data &&)" << endl; };
+    BSTnode() : parent(0)
+    {
+        //cout << "BSTnode()" << endl;
+    }
+    BSTnode(const Key &sl, const Data &d) : key{sl}, data(d), parent(0){
+                                                                  //cout << "BSTnode(const Key &, const Data &)" << endl;
+                                                              };
+    BSTnode(Key &&sl, Data &&d) : key{move(sl)}, data(move(d)), parent(0){
+                                                                    //cout << "BSTnode(Key &&,Data &&)" << endl;
+                                                                };
 
   protected:
     Key key;
@@ -129,6 +139,28 @@ void BST<Key, Data>::inorder(std::function<void(const BSTnode<Key, Data> &)> vis
 }
 
 template <class Key, class Data>
+void BST<Key, Data>::preorder(std::function<void(const BSTnode<Key, Data> &)> visit) const
+{
+    if (*this)
+    {
+        visit(**this);
+        (*this)->left.preorder(visit);
+        (*this)->right.preorder(visit);
+    }
+}
+
+template <class Key, class Data>
+void BST<Key, Data>::postorder(std::function<void(const BSTnode<Key, Data> &)> visit) const
+{
+    if (*this)
+    {
+        (*this)->left.postorder(visit);
+        (*this)->right.postorder(visit);
+        visit(**this);
+    }
+}
+
+template <class Key, class Data>
 void BST<Key, Data>::output(ostream &os) const
 {
     inorder([&os](const BSTnode<Key, Data> &node) {
@@ -145,6 +177,51 @@ void BST<Key, Data>::output(ostream &os) const
             os << "-----";
         os << "\n";
     });
+}
+
+template <class Key, class Data>
+int BST<Key, Data>::size()
+{
+    if (*this)
+    {
+        return 1 + (*this)->left.size() + (*this)->right.size();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+template <class Key, class Data>
+int BST<Key, Data>::depth()
+{
+    if (*this)
+    {
+        if ((*this)->right && (*this)->left)
+        {
+            int r = 1 + (*this)->right.depth();
+            int l = 1 + (*this)->left.depth();
+            // the trick to return the proper length if a node has 2 possible paths down is to make the comparison here
+            // instead of trying to keep track of the maximum observed depth value!
+            return r > l ? r : l;
+        }
+        else if ((*this)->right)
+        {
+            return 1 + (*this)->right.depth();
+        }
+        else if ((*this)->left)
+        {
+            return 1 + (*this)->left.depth();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 #endif
