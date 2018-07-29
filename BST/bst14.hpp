@@ -66,6 +66,9 @@ class BST : public unique_ptr<BSTnode<Key, Data>>
     // The search function looks for key in the tree and return the tree containing the key or an empty tree if the key isn't in the tree
     // It also sets the parent argument (a pointer passed via reference) to that tree's parent (so long as the tree has a parent)
     void search(const Key &key, BSTnode<Key, Data> *&parent, BST<Key, Data> *&location);
+
+  private:
+    void makeBalanced_op();
 };
 
 template <class Key, class Data>
@@ -97,12 +100,12 @@ class BSTnode
         return key;
     }
 
-  
     BST<Key, Data> &&getChild(bool l)
     {
         return l ? move(left) : move(right);
     }
-    protected:
+
+  protected:
     Key key;
     Data data;
     BSTnode<Key, Data> *parent;
@@ -204,25 +207,6 @@ void BST<Key, Data>::postorder(std::function<void(const BSTnode<Key, Data> &)> v
 }
 
 template <class Key, class Data>
-void BST<Key, Data>::pretty_print(int indent) const
-{
-    if (*this)
-    {
-        if ((*this)->right)
-            (*this)->right.pretty_print(indent + 4);
-
-        if (indent)
-        {
-            cout << std::setw(indent) << ' ';
-        }
-        cout << (*this)->key << ',' << (*this)->data << '\n';
-
-        if ((*this)->left)
-            (*this)->left.pretty_print(indent + 4);
-    }
-}
-
-template <class Key, class Data>
 void BST<Key, Data>::output(ostream &os) const
 {
     inorder([&os](const BSTnode<Key, Data> &node) {
@@ -239,6 +223,38 @@ void BST<Key, Data>::output(ostream &os) const
             os << "-----";
         os << "\n";
     });
+}
+
+template <class Key, class Data>
+bool BST<Key, Data>::repOK() const
+{
+    if (*this)
+    {
+        bool isOK = true;
+        const Key *previousKey = nullptr;
+
+        inorder([&isOK, &previousKey](const BSTnode<Key, Data> &node) {
+            if (!isOK)
+            {
+                return;
+            }
+            if (previousKey && (*previousKey > node.key))
+            {
+                isOK = false;
+            }
+            if (node.left && (node.left->parent) != &node)
+            {
+                isOK = false;
+            }
+            if (node.right && (node.right->parent) != &node)
+            {
+                isOK = false;
+            }
+        });
+        return isOK;
+    }
+    else
+        return false;
 }
 
 template <class Key, class Data>
@@ -283,6 +299,69 @@ int BST<Key, Data>::depth() const
     else
     {
         return 0;
+    }
+}
+
+template <class Key, class Data>
+void BST<Key, Data>::makeImbalanced()
+{
+    if (*this)
+    {
+        while ((*this)->left)
+        {
+           rotate(false);
+        }
+        if((*this)->right){
+            (*this)->right.makeImbalanced();
+        }
+    }
+}
+
+template <class Key, class Data>
+void BST<Key, Data>::makeBalanced()
+{
+    if(*this){
+        makeImbalanced();
+        makeBalanced_op();
+    }
+}
+
+template <class Key, class Data>
+void BST<Key, Data>::makeBalanced_op() {
+    if(*this){
+        int depth = this->depth();
+        if((*this)->right) {
+            for(int i=0;i<(depth/2);i++){
+                rotate(true);
+            }
+        }
+        else if((*this)->left){
+            for(int i=0;i<(depth/2);i++){
+                rotate(false);
+            }
+        }
+        (*this)->left.makeBalanced_op();
+        (*this)->right.makeBalanced_op();
+    }
+}
+
+
+template <class Key, class Data>
+void BST<Key, Data>::pretty_print(int indent) const
+{
+    if (*this)
+    {
+        if ((*this)->right)
+            (*this)->right.pretty_print(indent + 4);
+
+        if (indent)
+        {
+            cout << std::setw(indent) << ' ';
+        }
+        cout << (*this)->key << ',' << (*this)->data << '\n';
+
+        if ((*this)->left)
+            (*this)->left.pretty_print(indent + 4);
     }
 }
 

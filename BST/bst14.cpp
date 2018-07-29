@@ -8,6 +8,7 @@ bool creationTest();
 bool sizeTest();
 bool depthTest();
 bool rotateTest();
+bool balanceTest();
 
 void print_break();
 
@@ -17,6 +18,7 @@ int main(int argc, char **argv)
     sizeTest() ? cout << "Size test succeeded" << endl : cerr << "Size test failed" << endl;
     depthTest() ? cout << "Depth test succeeded" << endl : cerr << "Depth test failed" << endl;
     rotateTest() ? cout << "Rotate test succeeded"<<endl:cerr<<"Rotate test failed"<<endl;
+    balanceTest() ? cout << "Balance test succeeded"<<endl:cerr<<"Balance test failed"<<endl;
     return 0;
 }
 
@@ -116,9 +118,28 @@ bool rotateTest(){
     print_break();
     t2.rotate(false);
     t2.pretty_print();
-    print_break();
-        
+    print_break();        
 
+    return true;
+}
+
+bool balanceTest(){
+    BST<int,int> t1;
+    t1.add(6,6);
+    t1.add(8,8);
+    t1.add(4,4);
+    t1.add(3,3);
+    t1.add(5,5);
+    t1.add(7,7);
+    t1.add(9,9);   
+    t1.pretty_print();
+    print_break();
+    t1.makeImbalanced();
+    t1.pretty_print();
+    print_break();
+    t1.makeBalanced();
+    t1.pretty_print();
+    print_break();
     return true;
 }
 
