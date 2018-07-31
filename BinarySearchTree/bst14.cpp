@@ -140,6 +140,16 @@ bool balanceTest(){
     t1.makeBalanced();
     t1.pretty_print();
     print_break();
+
+    t1.add(10,10);
+    t1.makeImbalanced();
+    t1.pretty_print();
+    print_break();
+    t1.makeBalanced();
+    t1.pretty_print();
+    print_break();
+
+
     return true;
 }
 
