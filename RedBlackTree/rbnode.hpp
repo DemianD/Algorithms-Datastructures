@@ -1,13 +1,16 @@
 #ifndef __RBNODE_HPP
 #define __RBNODE_HPP
 
-#include "rbtree.hpp";
+#include "rbtree.hpp"
 
 enum class Color
 {
     RED,
     BLACK
 };
+
+template <class Key, class Data>
+class RBtree;
 
 template <class Key, class Data>
 class RBnode
@@ -23,7 +26,7 @@ class RBnode
     {
         //cout << "RBnode(const Key &, const Data &)" << endl;
     }
-    RBnode(Key &&sl, Data &&d, Color &&c) : key{move(sl)}, data{move(d)}, color{move(c)}, parent{0}
+    RBnode(Key &&sl, Data &&d, Color &c) : key{move(sl)}, data{move(d)}, color{c}, parent{0}
     {
         //cout << "RBnode(Key &&,Data &&)" << endl;
     }
@@ -62,11 +65,13 @@ class RBnode
     RBnode(RBnode<Key, Data> &&other) = delete;
     RBnode<Key, Data> &operator=(RBnode<Key, Data> &&other) = delete;
 
-    bool operator==(const RBnode<Key,Data>& other) const {
-        return ((key==other.key)&&(data==other.data)&&(color=other.color));
+    bool operator==(const RBnode<Key, Data> &other) const
+    {
+        return ((key == other.key) && (data == other.data) && (color = other.color));
     }
 
-    bool operator!=(const RBnode<Key,Data>& other) const {
+    bool operator!=(const RBnode<Key, Data> &other) const
+    {
         return !(*this == other);
     }
 
@@ -90,10 +95,10 @@ class RBnode
         return l ? left : right;
     }
 
-    RBtree<Key,Data>* getChild(bool l)
-    {
-        return l ? &left : &right
-    }
+    // RBtree<Key, Data> *getChild(bool l)
+    // {
+    //     return l ? &left : &right;
+    // }
 
   protected:
     Key key;

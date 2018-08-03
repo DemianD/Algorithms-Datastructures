@@ -8,6 +8,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;
+#include <iomanip>
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -24,18 +25,18 @@ template <class Key, class Data>
 using RBnodeptr = unique_ptr<RBnode<Key, Data>>;
 
 template <class Key, class Data>
-class RBtree : public RBnodeptr
+class RBtree : public RBnodeptr<Key,Data>
 {
   public:
-    RBtree() : RBnodeptr{nullptr} { cout << "RBtree()\n"; };
-    RBtree(const Key &_k, const Data &_d, const Color &_c) : RBnodeptr{make_unique<RBnode<Key, Data>>(_k, _d, _c)} { cout << "RBtree(Key&,Data&,Color&)\n"; };
+    RBtree() : RBnodeptr<Key,Data>{nullptr} { cout << "RBtree()\n"; };
+    RBtree(const Key &_k, const Data &_d, const Color &_c) : RBnodeptr<Key,Data>{make_unique<RBnode<Key, Data>>(_k, _d, _c)} { cout << "RBtree(Key&,Data&,Color&)\n"; };
     virtual ~RBtree() = default;
 
-    RBtree(const RBtree<Key, Data> &other) : RBnodeptr{nullptr}
+    RBtree(const RBtree<Key, Data> &other) : RBnodeptr<Key,Data>{nullptr}
     {
         if (other)
         {
-            this->reset(*other)
+            this->reset(*other);
         }
     };
     RBtree &operator=(const RBtree<Key, Data> &other)
@@ -45,7 +46,7 @@ class RBtree : public RBnodeptr
         return *this;
     };
 
-    RBtree(RBtree<Key, Data> &&other) : RBnodeptr{move(other)} {};
+    RBtree(RBtree<Key, Data> &&other) : RBnodeptr<Key,Data>{move(other)} {};
     RBtree &operator=(RBtree<Key, Data> &&other)
     {
         this->swap(other);
@@ -54,8 +55,8 @@ class RBtree : public RBnodeptr
 
     int depth() const;
     void rotate(bool);
-    void add_bottom_up(const Key&, const Data&);
-    void add_top_down(const Key&, const Data&);
+    void add_bottom_up(const Key &, const Data &);
+    void add_top_down(const Key &, const Data &);
     bool repOK() const;
     Color getColor() const;
 
@@ -67,14 +68,14 @@ class RBtree : public RBnodeptr
 };
 
 template <class Key, class Data>
-int RBtree<Key,Data>::depth() const {
-    if(!*this){
+int RBtree<Key, Data>::depth() const
+{
+    if (!*this)
+    {
         return 0;
     }
-    return (std::max((*this)->left.depth(),(*this)->right.depth())+1);
+    return (std::max((*this)->left.depth(), (*this)->right.depth()) + 1);
 }
-
-
 
 template <class Key, class Data>
 void RBtree<Key, Data>::inorder(std::function<void(const RBnode<Key, Data> &)> visit) const
@@ -113,7 +114,7 @@ template <class Key, class Data>
 void RBtree<Key, Data>::output(ostream &os) const
 {
     inorder([&os](const RBnode<Key, Data> &node) {
-        os << "(" << node.key << " -> " << node.data << ")";
+        os << "(" << node.key << " -> " << node.data << " ->" << node.color << ")";
         os << "\n  Left child: ";
         if (node.left)
             os << node.left->key;
