@@ -1,7 +1,7 @@
 #ifndef __RBTREE_HPP
 #define __RBTREE_HPP
 
-#define CONSTRUCTION_LOGGING
+#define CONSTRUCTION_LOGGING 0
 
 #include "rbnode.hpp"
 #include <iostream>
@@ -25,38 +25,62 @@ template <class Key, class Data>
 using RBnodeptr = unique_ptr<RBnode<Key, Data>>;
 
 template <class Key, class Data>
-class RBtree : public RBnodeptr<Key,Data>
+class RBtree : public RBnodeptr<Key, Data>
 {
   public:
-    RBtree() : RBnodeptr<Key,Data>{nullptr} { cout << "RBtree()\n"; };
-    RBtree(const Key &_k, const Data &_d, const Color &_c) : RBnodeptr<Key,Data>{make_unique<RBnode<Key, Data>>(_k, _d, _c)} { cout << "RBtree(Key&,Data&,Color&)\n"; };
+    RBtree() : RBnodeptr<Key, Data>{nullptr}
+    {
+        if (CONSTRUCTION_LOGGING)
+            cout << "RBtree()\n";
+    };
+    RBtree(const Key &_k, const Data &_d, const Color &_c) : RBnodeptr<Key, Data>{make_unique<RBnode<Key, Data>>(_k, _d, _c)}
+    {
+        if (CONSTRUCTION_LOGGING)
+            cout << "RBtree(Key&,Data&,Color&)\n";
+    };
     virtual ~RBtree() = default;
 
-    RBtree(const RBtree<Key, Data> &other) : RBnodeptr<Key,Data>{nullptr}
+    RBtree(const RBtree<Key, Data> &other) //: RBnodeptr<Key, Data>{nullptr}
     {
+        if (CONSTRUCTION_LOGGING)
+            cout << "RBtree(const RBtree&)\n";
+
         if (other)
         {
-            this->reset(*other);
+            this->reset(new RBnode<Key, Data>(*other));
         }
     };
     RBtree &operator=(const RBtree<Key, Data> &other)
     {
+        if (CONSTRUCTION_LOGGING)
+            cout << "operator=(const RBtree&)\n";
+
         RBtree<Key, Data> temp{other};
         temp.swap(*this);
         return *this;
     };
 
-    RBtree(RBtree<Key, Data> &&other) : RBnodeptr<Key,Data>{move(other)} {};
+    RBtree(RBtree<Key, Data> &&other) : RBnodeptr<Key, Data>{move(other)}
+    {
+        if (CONSTRUCTION_LOGGING)
+            cout << "RBtree(RBtree&&)\n";
+    };
+
     RBtree &operator=(RBtree<Key, Data> &&other)
     {
+        if (CONSTRUCTION_LOGGING)
+            cout << "operator=(RBtree&&)\n";
+
         this->swap(other);
         return *this;
     };
 
     int depth() const;
     void rotate(bool);
-    void add_bottom_up(const Key &, const Data &);
-    void add_top_down(const Key &, const Data &);
+    void insert_bottom_up(const Key &, const Data &);
+    void insert_top_down(const Key &, const Data &);
+    void remove_bottom_up(const Key &);
+    void remove_top_down(const Key &);
     bool repOK() const;
     Color getColor() const;
 
@@ -65,16 +89,53 @@ class RBtree : public RBnodeptr<Key,Data>
     void postorder(std::function<void(const RBnode<Key, Data> &)> visit) const;
     void output(ostream &os) const;
     void pretty_print(int indent = 0) const;
+
+  protected:
+    std::tuple<RBtree<Key, Data> *, RBnode<Key, Data> *> search(const Key &);
+    std::tuple < RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *>get_family_pointers(const RBtree<Key, Data> * const);
+    int black_depth(bool &) const;
 };
+
+template <class Key, class Data>
+std::tuple<RBtree<Key, Data> *, RBnode<Key, Data> *> RBtree<Key, Data>::search(const Key &key)
+{
+    RBtree<Key, Data> *location = this;
+    RBnode<Key, Data> *parent = nullptr;
+
+    while (*location && (*location)->key != key)
+    {
+        parent = location->get();
+        if (key > (*location)->key)
+        {
+            location = &(*location)->right;
+        }
+        else
+        {
+            location = &(*location)->left;
+        }
+    }
+    return std::tuple(location, parent);
+}
 
 template <class Key, class Data>
 int RBtree<Key, Data>::depth() const
 {
     if (!*this)
     {
-        return 0;
+        return -1;
     }
-    return (std::max((*this)->left.depth(), (*this)->right.depth()) + 1);
+    return std::max((*this)->left.depth(), (*this)->right.depth()) + 1;
+}
+
+template <class Key, class Data>
+void RBtree<Key,Data>::insert_bottom_up(const Key &key, const Data &data)
+{
+    auto [location, parent] = search(key);
+    if(*location){
+        return;
+    }
+    *location = RBtree<Key,Data>(key,data,Color::RED);
+    (*location)->parent = parent;
 }
 
 template <class Key, class Data>
