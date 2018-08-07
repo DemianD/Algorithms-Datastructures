@@ -2,12 +2,23 @@
 #define __RBNODE_HPP
 
 #include "rbtree.hpp"
+#include <iostream>
 
 enum class Color
 {
     RED,
     BLACK
 };
+
+std::ostream& operator<<(std::ostream& os, const Color c){
+    if(c == Color::RED) {
+        os<<"R";
+    }
+    else if (c == Color::BLACK){
+        os<<"B";
+    }
+    return os;
+}
 
 template <class Key, class Data>
 class RBtree;

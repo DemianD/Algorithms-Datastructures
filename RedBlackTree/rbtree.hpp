@@ -93,7 +93,7 @@ class RBtree : public RBnodeptr<Key, Data>
   protected:
     std::tuple<RBtree<Key, Data> *, RBnode<Key, Data> *> search(const Key &);
     std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> get_family_pointers(const RBtree<Key, Data> *const);
-    void insert_bu_fixup();
+    void insert_bu_fixup(RBtree<Key, Data> *);
     void transplant(RBtree<Key, Data> &&);
     int black_depth(bool &) const;
 };
@@ -122,27 +122,25 @@ std::tuple<RBtree<Key, Data> *, RBnode<Key, Data> *> RBtree<Key, Data>::search(c
 template <class Key, class Data>
 std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree<Key, Data>::get_family_pointers(const RBtree<Key, Data> *const location)
 {
-    RBtree<Key,Data>*parent = nullptr;
-    RBtree<Key,Data>*grandparent = nullptr;    
-    RBtree<Key,Data>*uncle = nullptr;
-    if (location && *location)
+    RBtree<Key, Data> *parent = nullptr;
+    RBtree<Key, Data> *grandparent = nullptr;
+    RBtree<Key, Data> *uncle = nullptr;
+    if (location && *location && (*location)->parent && (*location)->parent->parent)
     {
-        if ((*location)->parent && (*location)->parent->parent)
+        RBtree<Key, Data> *grandparent = nullptr;
+        if (!((*location)->parent->parent->parent))
         {
-            RBtree<Key, Data> *grandparent = nullptr;
-            if (!((*location)->parent->parent->parent))
-            {
-                grandparent = this;
-            }
-            else
-            {
-                grandparent = (*location)->parent->parent->parent->getChild((*location)->parent->parent->isLeftChild());
-            }
-            bool grandparent_to_parent_direction = (*this)->parent->isLeftChild();
-            parent = (*grandparent)->getChild(grandparent_to_parent_direction);
-            uncle = (*grandparent)->getChild(!grandparent_to_parent_direction);
+            grandparent = this;
+        }
+        else
+        {
+            grandparent = (*location)->parent->parent->parent->getChild((*location)->parent->parent->isLeftChild());
         }
     }
+
+    bool grandparent_to_parent_direction = (*this)->parent->isLeftChild();
+    parent = (*grandparent)->getChild(grandparent_to_parent_direction);
+    uncle = (*grandparent)->getChild(!grandparent_to_parent_direction);
     return std::make_tuple(grandparent, parent, uncle);
 }
 
@@ -188,24 +186,26 @@ void RBtree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
     }
     *location = RBtree<Key, Data>(key, data, Color::RED);
     (*location)->parent = parent;
-    location->insert_bu_fixup();
+    // subtle shit that bites you in the ass, if you write location->insert_bu_fixup()
+    // then 'this' in the context of that function will be the RBtree at the location.
+    // This makes implementing proper behavior in case the tree is small (no grandparent) impossible
+    // without really forced type conversions. So what you need is to move the location in as an argument
+    insert_bu_fixup(location);
 }
 
 template <class Key, class Data>
-void RBtree<Key, Data>::insert_bu_fixup()
+void RBtree<Key, Data>::insert_bu_fixup(RBtree<Key, Data> *location)
 {
-    RBtree<Key,Data>* location = this;
-    auto [grandparent, parent, uncle] = get_family_pointers(location);
-    while (location && *location && parent && *parent && (*parent)->color == Color::RED)
+    while (location && *location && (*location)->parent && (*location)->parent->color == Color::RED && (*location)->parent->parent)
     {
-
-        if ((*uncle)->color == Color::RED)
+        auto [grandparent, parent, uncle] = get_family_pointers(location);
+        if (*uncle && (*uncle)->color == Color::RED)
         {
             (*parent)->color == Color::BLACK;
             (*uncle)->color == Color::BLACK;
             location = grandparent;
         }
-        else if ((*parent)->isLeftChild())
+        else if (*parent && (*parent)->isLeftChild())
         {
             if (!(*location)->isLeftChild())
             {
@@ -238,7 +238,7 @@ void RBtree<Key, Data>::insert_bu_fixup()
             }
         }
     }
-    RBnode<Key, Data>* up = (*location)->getParent();
+    RBnode<Key, Data> *up = (*location)->getParent();
     if (up)
     {
         while (up->parent)
@@ -332,16 +332,16 @@ void RBtree<Key, Data>::pretty_print(int indent) const
     if (*this)
     {
         if ((*this)->right)
-            (*this)->right.pretty_print(indent + 4);
+            (*this)->right.pretty_print(indent + 8);
 
         if (indent)
         {
             cout << std::setw(indent) << ' ';
         }
-        cout << (*this)->key << ',' << (*this)->data << '\n';
+        cout << (*this)->key << ',' << (*this)->data << ',' << (*this)->color << '\n';
 
         if ((*this)->left)
-            (*this)->left.pretty_print(indent + 4);
+            (*this)->left.pretty_print(indent + 8);
     }
 }
 
