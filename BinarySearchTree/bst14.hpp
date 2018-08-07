@@ -100,9 +100,9 @@ class BSTnode
         return key;
     }
 
-    BST<Key, Data> &&getChild(bool l)
+    BST<Key, Data> getChild(bool l)
     {
-        return l ? move(left) : move(right);
+        return l ? left : right;
     }
 
   protected:
