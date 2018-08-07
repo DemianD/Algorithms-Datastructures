@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     t1.insert_bottom_up(10,10);
     t1.insert_bottom_up(15,15);
     cout<<t1.depth()<<"\n";
-
+    t1.pretty_print();
     return 0;
 }
 

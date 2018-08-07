@@ -120,8 +120,11 @@ std::tuple<RBtree<Key, Data> *, RBnode<Key, Data> *> RBtree<Key, Data>::search(c
 }
 
 template <class Key, class Data>
-std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree<Key, Data>::get_family_pointers(const RBtree<Key, Data> *location const)
+std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree<Key, Data>::get_family_pointers(const RBtree<Key, Data> *const location)
 {
+    RBtree<Key,Data>*parent = nullptr;
+    RBtree<Key,Data>*grandparent = nullptr;    
+    RBtree<Key,Data>*uncle = nullptr;
     if (location && *location)
     {
         if ((*location)->parent && (*location)->parent->parent)
@@ -136,8 +139,8 @@ std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree
                 grandparent = (*location)->parent->parent->parent->getChild((*location)->parent->parent->isLeftChild());
             }
             bool grandparent_to_parent_direction = (*this)->parent->isLeftChild();
-            RBtree<Key, Data> *parent = (*grandparent)->getChild(grandparent_to_parent_direction);
-            RBtree<Key, Data> *uncle = (*grandparent)->getChild(!grandparent_to_parent_direction);
+            parent = (*grandparent)->getChild(grandparent_to_parent_direction);
+            uncle = (*grandparent)->getChild(!grandparent_to_parent_direction);
         }
     }
     return std::make_tuple(grandparent, parent, uncle);
@@ -160,17 +163,17 @@ void RBtree<Key, Data>::rotate(bool left)
     {
         return;
     }
-    RBtree<Key, Data> child = move((*this)->getChild(!left));
+    RBtree<Key, Data> child = move(*((*this)->getChild(!left)));
     if (child)
     {
-        RBtree<Key, Data> subchild = move((*child)->getChild(left));
+        RBtree<Key, Data> subchild = move(*(child->getChild(left)));
         if (subchild)
         {
-            (*this)->getChild(!left) = move(subchild);
+            *((*this)->getChild(!left)) = move(subchild);
         }
         child->parent = (*this)->parent;
         (*this)->parent = child.get();
-        child->getChild(left) = move(*this);
+        *(child->getChild(left)) = move(*this);
         *this = move(child);
     }
 }
@@ -185,27 +188,28 @@ void RBtree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
     }
     *location = RBtree<Key, Data>(key, data, Color::RED);
     (*location)->parent = parent;
-    (*location)->insert_bu_fixup();
+    location->insert_bu_fixup();
 }
 
 template <class Key, class Data>
 void RBtree<Key, Data>::insert_bu_fixup()
 {
-    auto [grandparent, parent, uncle] = get_family_pointers(this);
-    while (this && *this && parent && (*parent)->color == Color::RED)
+    RBtree<Key,Data>* location = this;
+    auto [grandparent, parent, uncle] = get_family_pointers(location);
+    while (location && *location && parent && *parent && (*parent)->color == Color::RED)
     {
 
         if ((*uncle)->color == Color::RED)
         {
             (*parent)->color == Color::BLACK;
             (*uncle)->color == Color::BLACK;
-            this = grandparent;
+            location = grandparent;
         }
         else if ((*parent)->isLeftChild())
         {
-            if (!(*this)->isLeftChild())
+            if (!(*location)->isLeftChild())
             {
-                (*this)->color = Color::BLACK;
+                (*location)->color = Color::BLACK;
                 (*grandparent)->color = Color::RED;
                 parent->rotate(true);
                 grandparent->rotate(false);
@@ -219,9 +223,9 @@ void RBtree<Key, Data>::insert_bu_fixup()
         }
         else
         {
-            if ((*this)->isLeftChild())
+            if ((*location)->isLeftChild())
             {
-                (*this)->color = Color::BLACK;
+                (*location)->color = Color::BLACK;
                 (*grandparent)->color = Color::RED;
                 parent->rotate(false);
                 grandparent->rotate(true);
@@ -234,7 +238,7 @@ void RBtree<Key, Data>::insert_bu_fixup()
             }
         }
     }
-    RBnode<Key, Data> up = (*this)->getParent();
+    RBnode<Key, Data>* up = (*location)->getParent();
     if (up)
     {
         while (up->parent)
@@ -245,7 +249,7 @@ void RBtree<Key, Data>::insert_bu_fixup()
     }
     else
     {
-        (*this)->color = Color::BLACK;
+        (*location)->color = Color::BLACK;
     }
 }
 
@@ -268,7 +272,6 @@ void RBtree<Key, Data>::transplant(RBtree<Key, Data> &&other)
 template <class Key, class Data>
 void RBtree<Key, Data>::delete_bottom_up(const Key &key)
 {
-    
 }
 
 template <class Key, class Data>

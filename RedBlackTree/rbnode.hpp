@@ -90,16 +90,17 @@ class RBnode
         return color;
     }
 
-    RBtree<Key, Data> getChild(bool l)
+    RBtree<Key, Data>* getChild(bool l)
     {
-        return l ? left : right;
+        return l ? &left : &right;
     }
 
-     RBnode<Key,Data>* getParent(){
-        return (*this)->parent;
+    RBnode<Key,Data>* getParent(){
+        return this->parent;
     }
 
     bool isLeftChild() const {
+        // [[expects: parent != nullptr]] This syntax is not yet support by GCC or CLANG
         if(parent){
             if(this == (parent->left).get()){
                 return true;
@@ -107,14 +108,8 @@ class RBnode
             else if(this == (parent->right).get()){
                 return false;
             }
-        }
-        else throw;
+        }        
     }
-
-    // RBtree<Key, Data> *getChild(bool l)
-    // {
-    //     return l ? &left : &right;
-    // }
 
   protected:
     Key key;
