@@ -95,6 +95,22 @@ class RBnode
         return l ? left : right;
     }
 
+     RBnode<Key,Data>* getParent(){
+        return (*this)->parent;
+    }
+
+    bool isLeftChild() const {
+        if(parent){
+            if(this == (parent->left).get()){
+                return true;
+            }
+            else if(this == (parent->right).get()){
+                return false;
+            }
+        }
+        else throw;
+    }
+
     // RBtree<Key, Data> *getChild(bool l)
     // {
     //     return l ? &left : &right;
