@@ -12,13 +12,23 @@ int main(int argc, char **argv)
 {
     creationTest();
     RBtree<int,int> t1(20,20,Color::BLACK);
-    cout<<t1.depth()<<"\n";
-    t1.insert_bottom_up(30,30);
-    t1.insert_bottom_up(40,40);
-    t1.insert_bottom_up(10,10);
-    t1.insert_bottom_up(15,15);
-    cout<<t1.depth()<<"\n";
     t1.pretty_print();
+    cout<<endl;
+    t1.insert_bottom_up(30,30);
+    t1.pretty_print();
+    cout<<endl;
+    t1.insert_bottom_up(40,40);
+    t1.pretty_print();
+    cout<<endl;
+    t1.insert_bottom_up(10,10);
+    t1.pretty_print();
+    cout<<endl;
+    t1.insert_bottom_up(15,15);    
+    t1.pretty_print();
+    cout<<endl;
+    t1.insert_bottom_up(50,50);
+    t1.pretty_print();
+    cout<<endl;
     return 0;
 }
 

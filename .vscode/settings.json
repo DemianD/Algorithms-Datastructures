@@ -42,5 +42,7 @@
         "**/.DS_Store": true,
         "**/*/*[!.txtjsonchpp]":true,        
     },
-    "C_Cpp.loggingLevel": "Information"
+    "C_Cpp.loggingLevel": "Information",
+    "editor.fontFamily": "'Hack Regular'",
+    "editor.fontSize": 16
 }

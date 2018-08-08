@@ -126,8 +126,7 @@ std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree
     RBtree<Key, Data> *grandparent = nullptr;
     RBtree<Key, Data> *uncle = nullptr;
     if (location && *location && (*location)->parent && (*location)->parent->parent)
-    {
-        RBtree<Key, Data> *grandparent = nullptr;
+    {        
         if (!((*location)->parent->parent->parent))
         {
             grandparent = this;
@@ -138,7 +137,7 @@ std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree
         }
     }
 
-    bool grandparent_to_parent_direction = (*this)->parent->isLeftChild();
+    bool grandparent_to_parent_direction = (*location)->parent->isLeftChild();
     parent = (*grandparent)->getChild(grandparent_to_parent_direction);
     uncle = (*grandparent)->getChild(!grandparent_to_parent_direction);
     return std::make_tuple(grandparent, parent, uncle);
@@ -201,8 +200,8 @@ void RBtree<Key, Data>::insert_bu_fixup(RBtree<Key, Data> *location)
         auto [grandparent, parent, uncle] = get_family_pointers(location);
         if (*uncle && (*uncle)->color == Color::RED)
         {
-            (*parent)->color == Color::BLACK;
-            (*uncle)->color == Color::BLACK;
+            (*parent)->color = Color::BLACK;
+            (*uncle)->color = Color::BLACK;
             location = grandparent;
         }
         else if (*parent && (*parent)->isLeftChild())
@@ -238,6 +237,7 @@ void RBtree<Key, Data>::insert_bu_fixup(RBtree<Key, Data> *location)
             }
         }
     }
+    if(location && *location){
     RBnode<Key, Data> *up = (*location)->getParent();
     if (up)
     {
@@ -250,6 +250,7 @@ void RBtree<Key, Data>::insert_bu_fixup(RBtree<Key, Data> *location)
     else
     {
         (*location)->color = Color::BLACK;
+    }
     }
 }
 
