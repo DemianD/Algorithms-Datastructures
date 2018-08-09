@@ -33,10 +33,10 @@ class SplayTree : public SplayNodeptr<Key, Data>
         if (CONSTRUCTION_LOGGING)
             cout << "SplayTree()\n";
     };
-    SplayTree(const Key &_k, const Data &_d, const Color &_c) : SplayNodeptr<Key, Data>{make_unique<SplayNode<Key, Data>>(_k, _d, _c)}
+    SplayTree(const Key &_k, const Data &_d) : SplayNodeptr<Key, Data>{make_unique<SplayNode<Key, Data>>(_k, _d)}
     {
         if (CONSTRUCTION_LOGGING)
-            cout << "SplayTree(Key&,Data&,Color&)\n";
+            cout << "SplayTree(Key&,Data&)\n";
     };
     virtual ~SplayTree() = default;
 
@@ -81,8 +81,7 @@ class SplayTree : public SplayNodeptr<Key, Data>
     void insert_top_down(const Key &, const Data &);
     void delete_bottom_up(const Key &);
     void delete_top_down(const Key &);
-    bool repOK() const;
-    Color getColor() const;
+    bool repOK() const;    
 
     void inorder(std::function<void(const SplayNode<Key, Data> &)> visit) const;
     void preorder(std::function<void(const SplayNode<Key, Data> &)> visit) const;
@@ -94,8 +93,7 @@ class SplayTree : public SplayNodeptr<Key, Data>
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
     void insert_bu_fixup(SplayTree<Key, Data> *);
-    void transplant(SplayTree<Key, Data> &&);
-    int black_depth(bool &) const;
+    void transplant(SplayTree<Key, Data> &&);    
 };
 
 template <class Key, class Data>
@@ -183,77 +181,14 @@ void SplayTree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
     {
         return;
     }
-    *location = SplayTree<Key, Data>(key, data, Color::RED);
-    (*location)->parent = parent;
-    // subtle shit that bites you in the ass, if you write location->insert_bu_fixup()
-    // then 'this' in the context of that function will be the SplayTree at the location.
-    // This makes implementing proper behavior in case the tree is small (no grandparent) impossible
-    // without really forced type conversions. So what you need is to move the location in as an argument
-    // then this will be the tree it's called on, instead of the lower location for insertion
-    insert_bu_fixup(location);
+    *location = SplayTree<Key, Data>(key, data);
+    (*location)->parent = parent;  
 }
 
 template <class Key, class Data>
 void SplayTree<Key, Data>::insert_bu_fixup(SplayTree<Key, Data> *location)
-{
-    while (location && *location && (*location)->parent && (*location)->parent->color == Color::RED && (*location)->parent->parent)
-    {
-        auto [grandparent, parent, uncle] = get_family_pointers(location);
-        if (*uncle && (*uncle)->color == Color::RED)
-        {
-            (*parent)->color = Color::BLACK;
-            (*uncle)->color = Color::BLACK;
-            location = grandparent;
-        }
-        else if (*parent && (*parent)->isLeftChild())
-        {
-            if (!(*location)->isLeftChild())
-            {
-                (*location)->color = Color::BLACK;
-                (*grandparent)->color = Color::RED;
-                parent->rotate(true);
-                grandparent->rotate(false);
-            }
-            else
-            {
-                (*parent)->color = Color::BLACK;
-                (*grandparent)->color = Color::RED;
-                grandparent->rotate(false);
-            }
-        }
-        else
-        {
-            if ((*location)->isLeftChild())
-            {
-                (*location)->color = Color::BLACK;
-                (*grandparent)->color = Color::RED;
-                parent->rotate(false);
-                grandparent->rotate(true);
-            }
-            else
-            {
-                (*parent)->color = Color::BLACK;
-                (*grandparent)->color = Color::RED;
-                grandparent->rotate(true);
-            }
-        }
-    }
-    if (location && *location)
-    {
-        SplayNode<Key, Data> *up = (*location)->getParent();
-        if (up)
-        {
-            while (up->parent)
-            {
-                up = up->parent;
-            }
-            up->color = Color::BLACK;
-        }
-        else
-        {
-            (*location)->color = Color::BLACK;
-        }
-    }
+{   
+    
 }
 
 template <class Key, class Data>
@@ -314,7 +249,7 @@ template <class Key, class Data>
 void SplayTree<Key, Data>::output(ostream &os) const
 {
     inorder([&os](const SplayNode<Key, Data> &node) {
-        os << "(" << node.key << " -> " << node.data << " ->" << node.color << ")";
+        os << "(" << node.key << " -> " << node.data <<  ")";
         os << "\n  Left child: ";
         if (node.left)
             os << node.left->key;
@@ -341,7 +276,7 @@ void SplayTree<Key, Data>::pretty_print(int indent) const
         {
             cout << std::setw(indent) << ' ';
         }
-        cout << (*this)->key << ',' << (*this)->data << ',' << (*this)->color << '\n';
+        cout << (*this)->key << ',' << (*this)->data <<  '\n';
 
         if ((*this)->left)
             (*this)->left.pretty_print(indent + 8);
