@@ -126,7 +126,7 @@ std::tuple<RBtree<Key, Data> *, RBtree<Key, Data> *, RBtree<Key, Data> *> RBtree
     RBtree<Key, Data> *grandparent = nullptr;
     RBtree<Key, Data> *uncle = nullptr;
     if (location && *location && (*location)->parent && (*location)->parent->parent)
-    {        
+    {
         if (!((*location)->parent->parent->parent))
         {
             grandparent = this;
@@ -237,20 +237,21 @@ void RBtree<Key, Data>::insert_bu_fixup(RBtree<Key, Data> *location)
             }
         }
     }
-    if(location && *location){
-    RBnode<Key, Data> *up = (*location)->getParent();
-    if (up)
+    if (location && *location)
     {
-        while (up->parent)
+        RBnode<Key, Data> *up = (*location)->getParent();
+        if (up)
         {
-            up = up->parent;
+            while (up->parent)
+            {
+                up = up->parent;
+            }
+            up->color = Color::BLACK;
         }
-        up->color = Color::BLACK;
-    }
-    else
-    {
-        (*location)->color = Color::BLACK;
-    }
+        else
+        {
+            (*location)->color = Color::BLACK;
+        }
     }
 }
 

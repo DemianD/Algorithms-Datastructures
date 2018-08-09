@@ -10,12 +10,15 @@ enum class Color
     BLACK
 };
 
-std::ostream& operator<<(std::ostream& os, const Color c){
-    if(c == Color::RED) {
-        os<<"R";
+std::ostream &operator<<(std::ostream &os, const Color c)
+{
+    if (c == Color::RED)
+    {
+        os << "R";
     }
-    else if (c == Color::BLACK){
-        os<<"B";
+    else if (c == Color::BLACK)
+    {
+        os << "B";
     }
     return os;
 }
@@ -101,25 +104,30 @@ class RBnode
         return color;
     }
 
-    RBtree<Key, Data>* getChild(bool l)
+    RBtree<Key, Data> *getChild(bool l)
     {
         return l ? &left : &right;
     }
 
-    RBnode<Key,Data>* getParent(){
+    RBnode<Key, Data> *getParent()
+    {
         return this->parent;
     }
 
-    bool isLeftChild() const {
+    bool isLeftChild() const
+    {
         // [[expects: parent != nullptr]] This syntax is not yet support by GCC or CLANG
-        if(parent){
-            if(this == (parent->left).get()){
+        if (parent)
+        {
+            if (this == (parent->left).get())
+            {
                 return true;
             }
-            else if(this == (parent->right).get()){
+            else if (this == (parent->right).get())
+            {
                 return false;
             }
-        }        
+        }
     }
 
   protected:
