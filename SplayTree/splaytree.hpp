@@ -90,7 +90,8 @@ class SplayTree : public SplayNodeptr<Key, Data>
     void output(ostream &os) const;
     void pretty_print(int indent = 0) const;
 
-  protected:    
+  protected:
+    std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
     void splay(SplayTree<Key, Data> *);
     void transplant(SplayTree<Key, Data> &&);
@@ -114,8 +115,30 @@ std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> SplayTree<Key, Data>:
             location = &(*location)->left;
         }
     }
-    if(location && *location){
+    if (location && *location)
+    {
         splay(location);
+    }
+    return std::tuple(location, parent);
+}
+
+template <class Key, class Data>
+std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> SplayTree<Key, Data>::search_no_splay(const Key &key)
+{
+    SplayTree<Key, Data> *location = this;
+    SplayNode<Key, Data> *parent = nullptr;
+
+    while (*location && (*location)->key != key)
+    {
+        parent = location->get();
+        if (key > (*location)->key)
+        {
+            location = &(*location)->right;
+        }
+        else
+        {
+            location = &(*location)->left;
+        }
     }
     return std::tuple(location, parent);
 }
@@ -169,16 +192,16 @@ void SplayTree<Key, Data>::splay(SplayTree<Key, Data> *location)
                 if ((grandparent_to_parent_direction && parent_to_location_direction) || (!grandparent_to_parent_direction && !parent_to_location_direction))
                 {
                     grandparent->rotate(!grandparent_to_parent_direction);
-                    grandparent->rotate(!parent_to_location_direction); // the original parent is now the grandparent 
+                    grandparent->rotate(!parent_to_location_direction); // the original parent is now the grandparent
                 }
                 else
                 {
                     parent->rotate(!parent_to_location_direction);
                     grandparent->rotate(!grandparent_to_parent_direction);
                 }
-            }            
+            }
             splay(grandparent);
-        }   
+        }
     }
 }
 
@@ -217,7 +240,7 @@ void SplayTree<Key, Data>::rotate(bool left)
 template <class Key, class Data>
 void SplayTree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
 {
-    auto [location, parent] = search(key);
+    auto [location, parent] = search_no_splay(key);
     if (*location)
     {
         return;
