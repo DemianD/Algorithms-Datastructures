@@ -17,11 +17,11 @@ class SplayNode
     {
         //cout << "SplayNode()" << endl;
     }
-    SplayNode(const Key &sl, const Data &d, const Color &c) : key{sl}, data{d}, parent{0}
+    SplayNode(const Key &sl, const Data &d) : key{sl}, data{d}, parent{0}
     {
         //cout << "SplayNode(const Key &, const Data &)" << endl;
     }
-    SplayNode(Key &&sl, Data &&d, Color &c) : key{move(sl)}, data{move(d)}, parent{0}
+    SplayNode(Key &&sl, Data &&d) : key{move(sl)}, data{move(d)}, parent{0}
     {
         //cout << "SplayNode(Key &&,Data &&)" << endl;
     }
