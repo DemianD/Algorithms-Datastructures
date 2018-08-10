@@ -76,10 +76,10 @@ class SplayTree : public SplayNodeptr<Key, Data>
     };
 
     int depth() const;
+    std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search(const Key &);
     void rotate(bool);
     void insert_bottom_up(const Key &, const Data &);
     void insert_top_down(const Key &, const Data &);
-    std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search(const Key &);
     void delete_bottom_up(const Key &);
     void delete_top_down(const Key &);
     bool repOK() const;
@@ -90,11 +90,15 @@ class SplayTree : public SplayNodeptr<Key, Data>
     void output(ostream &os) const;
     void pretty_print(int indent = 0) const;
 
+    SplayTree<Key, Data> *predecessor(const SplayTree<Key, Data> *);
+    SplayTree<Key, Data> *successor(const SplayTree<Key, Data> *);
+
   protected:
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
+    SplayTree<Key, Data> *get_parent(const SplayTree<Key, Data> *const);
     void splay(SplayTree<Key, Data> *);
-    void transplant(SplayTree<Key, Data> &&);
+    void transplant(SplayTree<Key, Data> *);
 };
 
 template <class Key, class Data>
@@ -144,6 +148,32 @@ std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> SplayTree<Key, Data>:
 }
 
 template <class Key, class Data>
+SplayTree<Key, Data> *SplayTree<Key, Data>::predecessor(const SplayTree<Key, Data> *location)
+{
+    SplayTree<Key, Data> *walker = &(*location)->left;
+    SplayTree<Key, Data> *predecessor = nullptr;
+    while (walker && *walker && (*walker)->right)
+    {
+        predecessor = &(*walker)->right;
+        walker = &(*walker)->right;
+    }
+    return predecessor;
+}
+
+template <class Key, class Data>
+SplayTree<Key, Data> *SplayTree<Key, Data>::successor(const SplayTree<Key, Data> *location)
+{
+    SplayTree<Key, Data> *walker = &(*location)->right;
+    SplayTree<Key, Data> *successor = nullptr;
+    while (walker && *walker && (*walker)->left)
+    {
+        successor = &(*walker)->left;
+        walker = &(*walker)->left;
+    }
+    return successor;
+}
+
+template <class Key, class Data>
 std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> SplayTree<Key, Data>::get_family_pointers(const SplayTree<Key, Data> *const location)
 {
     SplayTree<Key, Data> *parent = nullptr;
@@ -170,6 +200,25 @@ std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> SplayTree<Key, Data>:
     }
 
     return std::make_tuple(grandparent, parent);
+}
+
+template <class Key, class Data>
+SplayTree<Key, Data> *SplayTree<Key, Data>::get_parent(const SplayTree<Key, Data> *const location)
+{
+    SplayTree<Key, Data> *parent = nullptr;
+    if (location && *location)
+    {
+        if (!(*location)->parent->parent)
+        {
+            parent = this;
+        }
+        else
+        {
+            bool grandparent_to_parent_direction = (*location)->parent->isLeftChild();
+            parent = (*location)->parent->parent->getChild(grandparent_to_parent_direction);
+        }
+    }
+    return parent;
 }
 
 template <class Key, class Data>
@@ -251,24 +300,66 @@ void SplayTree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
 }
 
 template <class Key, class Data>
-void SplayTree<Key, Data>::transplant(SplayTree<Key, Data> &&other)
+void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
 {
-    if ((*this)->parent)
+    auto [location, parent] = search_no_splay(key);
+    if (location && *location)
     {
-        if ((*this)->isLeftChild())
+        if ((*location)->left && (*location)->right)
         {
-            (*this)->parent->left = move(other);
+            SplayTree<Key, Data> *suc = successor(location);
+            if (suc && *suc)
+            {
+                (*location)->key = (*suc)->key;
+                (*location)->data = (*suc)->data;
+                if ((*suc)->right)
+                {
+                    (*suc)->parent->left = move((*suc)->right);
+                }
+            }
+            suc->reset(nullptr);
+            splay(location);
+        }
+        else if ((*location)->left)
+        {
+            location->transplant(&(*location)->left);
+            splay(location);
+        }
+        else if ((*location)->right)
+        {
+            location->transplant(&(*location)->right);
+            splay(location);
         }
         else
         {
-            (*this)->parent->right = move(other);
+            SplayTree<Key, Data> *p = get_parent(location);
+            location->reset(nullptr);
+            splay(p);
         }
     }
 }
 
 template <class Key, class Data>
-void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
+void SplayTree<Key, Data>::transplant(SplayTree<Key, Data> *other)
 {
+    if ((*this)->parent)
+    {
+        if ((*this)->isLeftChild())
+        {
+            (*other)->parent = (*this)->parent;
+            (*this)->parent->left = move(*other);
+        }
+        else
+        {
+            (*other)->parent = (*this)->parent;
+            (*this)->parent->right = move(*other);
+        }
+    }
+    else
+    {
+        (*other)->parent = nullptr;
+        *this = move(*other);
+    }
 }
 
 template <class Key, class Data>

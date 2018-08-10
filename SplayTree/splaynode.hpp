@@ -105,6 +105,12 @@ class SplayNode
         }
     }
 
+    friend std::ostream &operator<<(std::ostream &os, const SplayNode<Key, Data> &node)
+    {
+        os << node.key << ',' << node.data << " L: " << node.left.get() << " R: " << node.right.get() << '\n';
+        return os;
+    }
+
   protected:
     Key key;
     Data data;

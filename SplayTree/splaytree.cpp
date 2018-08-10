@@ -40,5 +40,31 @@ int main(int argc, char **argv)
     cout << i++ << '.' << '\n'
          << endl;
     t1.pretty_print();
+
+    cout << i++ << '.' << " predecessor " << '\n'
+         << *(t1.predecessor(&t1)->get())
+         << '\t'
+         << endl;
+
+    t1.delete_bottom_up(0);
+    cout << i++ << '.' << '\n'
+         << endl;
+    t1.pretty_print();
+
+    t1.output(cout);
+    // t1.delete_bottom_up(40);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+    // t1.delete_bottom_up(50);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+
+    //  t1.delete_bottom_up(200);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+
     return 0;
 }
