@@ -93,6 +93,9 @@ class SplayTree : public SplayNodeptr<Key, Data>
     SplayTree<Key, Data> *predecessor(const SplayTree<Key, Data> *);
     SplayTree<Key, Data> *successor(const SplayTree<Key, Data> *);
 
+    const SplayTree<Key, Data> *largest(const SplayTree<Key, Data> *);
+    const SplayTree<Key, Data> *smallest(const SplayTree<Key, Data> *);
+
   protected:
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
@@ -171,6 +174,30 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::successor(const SplayTree<Key, Data>
         walker = &(*walker)->left;
     }
     return successor;
+}
+
+template <class Key, class Data>
+const SplayTree<Key, Data>* SplayTree<Key,Data>::largest(const SplayTree<Key,Data>* location) {
+    const SplayTree<Key,Data>* largest = location;
+    while(location && *location) {
+        if((*location)->right) {
+            largest = &(*location)->right;
+        }
+        location = &(*location)->right;
+    }
+    return largest;
+}
+
+template <class Key, class Data>
+const SplayTree<Key, Data>* SplayTree<Key,Data>::smallest(const SplayTree<Key,Data>* location) {
+    const SplayTree<Key,Data>* smallest = location;
+    while(location && *location) {
+        if((*location)->left) {
+            smallest = &(*location)->left;
+        }
+        location = &(*location)->left;
+    }
+    return smallest;
 }
 
 template <class Key, class Data>
