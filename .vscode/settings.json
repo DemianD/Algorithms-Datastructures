@@ -43,6 +43,6 @@
         "**/*/*[!.txtjsonchpp]":true,        
     },
     "C_Cpp.loggingLevel": "Information",
-    "editor.fontFamily": "'Hack Regular'",
+    //"editor.fontFamily": "'Hack Regular'",
     "editor.fontSize": 16
 }
