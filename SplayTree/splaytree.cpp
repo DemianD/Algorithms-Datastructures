@@ -46,27 +46,39 @@ int main(int argc, char **argv)
          << '\t'
          << endl;
 
-    cout << i++ <<'.'<<" largest "<<'\n'<<*(t1.largest(&t1)->get()) << '\t' <<endl;
-    cout << i++ <<'.'<<" smallest "<<'\n'<<*(t1.smallest(&t1)->get()) << '\t' <<endl;
+    cout << i++ << '.' << " largest " << '\n'
+         << *(t1.largest(&t1)->get()) << '\t' << endl;
+    cout << i++ << '.' << " smallest " << '\n'
+         << *(t1.smallest(&t1)->get()) << '\t' << endl;
 
-    t1.delete_bottom_up(0);
+    auto [left, right] = t1.split(0);
     cout << i++ << '.' << '\n'
          << endl;
-    t1.pretty_print();
+    left.pretty_print();
     
-    t1.delete_bottom_up(40);
     cout << i++ << '.' << '\n'
          << endl;
-    t1.pretty_print();
-    t1.delete_bottom_up(50);
-    cout << i++ << '.' << '\n'
-         << endl;
-    t1.pretty_print();
+    right.pretty_print();
+    
 
-     t1.delete_bottom_up(200);
-    cout << i++ << '.' << '\n'
-         << endl;
-    t1.pretty_print();
+    // t1.delete_bottom_up(0);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+
+    // t1.delete_bottom_up(40);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+    // t1.delete_bottom_up(50);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
+
+    //  t1.delete_bottom_up(200);
+    // cout << i++ << '.' << '\n'
+    //      << endl;
+    // t1.pretty_print();
 
     return 0;
 }
