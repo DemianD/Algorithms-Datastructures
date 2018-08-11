@@ -156,9 +156,9 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::predecessor(const SplayTree<Key, Dat
 {
     SplayTree<Key, Data> *walker = &(*location)->left;
     SplayTree<Key, Data> *predecessor = nullptr;
-    while (walker && *walker && (*walker)->right)
+    while (walker && *walker)
     {
-        predecessor = &(*walker)->right;
+        predecessor = walker;
         walker = &(*walker)->right;
     }
     return predecessor;
@@ -169,9 +169,9 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::successor(const SplayTree<Key, Data>
 {
     SplayTree<Key, Data> *walker = &(*location)->right;
     SplayTree<Key, Data> *successor = nullptr;
-    while (walker && *walker && (*walker)->left)
+    while (walker && *walker)
     {
-        successor = &(*walker)->left;
+        successor = walker;
         walker = &(*walker)->left;
     }
     return successor;
@@ -362,6 +362,12 @@ void SplayTree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
     *location = SplayTree<Key, Data>(key, data); // despite not writing move(SplayTree...) a move is performed to bring the new node into location
     (*location)->parent = parent;
     splay(location);
+}
+
+template <class Key, class Data>
+void SplayTree<Key, Data>::insert_top_down(const Key& key, const Data& data) {
+    search(key);
+
 }
 
 template <class Key, class Data>
