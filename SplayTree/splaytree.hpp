@@ -1,7 +1,7 @@
 #ifndef __SPLAYTREE_HPP
 #define __SPLAYTREE_HPP
 
-#define CONSTRUCTION_LOGGING 0
+#define CONSTRUCTION_LOGGING 1
 
 #include "splaynode.hpp"
 #include <iostream>
@@ -102,8 +102,7 @@ class SplayTree : public SplayNodeptr<Key, Data>
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
     SplayTree<Key, Data> *get_parent(const SplayTree<Key, Data> *const);
-    void splay(const SplayTree<Key, Data> *);
-    void transplant(SplayTree<Key, Data> *);
+    void splay(const SplayTree<Key, Data> *);    
 };
 
 template <class Key, class Data>
@@ -393,12 +392,12 @@ void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
         }
         else if ((*location)->left)
         {
-            location->transplant(&(*location)->left);
+            *location = move((*location)->left);
             splay(location);
         }
         else if ((*location)->right)
         {
-            location->transplant(&(*location)->right);
+            *location = move((*location)->right);
             splay(location);
         }
         else
@@ -407,29 +406,6 @@ void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
             location->reset(nullptr);
             splay(p);
         }
-    }
-}
-
-template <class Key, class Data>
-void SplayTree<Key, Data>::transplant(SplayTree<Key, Data> *other)
-{
-    if ((*this)->parent)
-    {
-        if ((*this)->isLeftChild())
-        {
-            (*other)->parent = (*this)->parent;
-            (*this)->parent->left = move(*other);
-        }
-        else
-        {
-            (*other)->parent = (*this)->parent;
-            (*this)->parent->right = move(*other);
-        }
-    }
-    else
-    {
-        (*other)->parent = nullptr;
-        *this = move(*other);
     }
 }
 
