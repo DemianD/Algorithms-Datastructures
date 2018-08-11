@@ -97,12 +97,12 @@ class SplayTree : public SplayNodeptr<Key, Data>
     const SplayTree<Key, Data> *smallest(const SplayTree<Key, Data> *);
 
     std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> split(const Key &);
-
+    SplayTree<Key, Data> join(SplayTree<Key, Data>*, SplayTree<Key, Data>*);
   protected:
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
     SplayTree<Key, Data> *get_parent(const SplayTree<Key, Data> *const);
-    void splay(SplayTree<Key, Data> *);
+    void splay(const SplayTree<Key, Data> *);
     void transplant(SplayTree<Key, Data> *);
 };
 
@@ -178,7 +178,7 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::successor(const SplayTree<Key, Data>
 }
 
 template <class Key, class Data>
-const SplayTree<Key, Data> *SplayTree<Key, Data>::largest(const SplayTree<Key, Data> *location)
+const  SplayTree<Key, Data> *SplayTree<Key, Data>::largest(const SplayTree<Key, Data> *location)
 {
     const SplayTree<Key, Data> *largest = location;
     while (location && *location)
@@ -211,17 +211,31 @@ template <class Key, class Data>
 std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> SplayTree<Key, Data>::split(const Key &key)
 {
     auto location = search(key);
-    std::tuple<SplayTree<Key,Data>,SplayTree<Key,Data>> tup;    
+    std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> tup;
 
     if (location && *location)
     {
         if ((*location)->right)
         {
-            std::get<1>(tup)= move((*location)->right);
+            std::get<1>(tup) = move((*location)->right);
         }
         std::get<0>(tup) = move(*location);
     }
     return tup;
+}
+
+template <class Key, class Data>
+SplayTree<Key, Data> SplayTree<Key, Data>::join(SplayTree<Key, Data> *left, SplayTree<Key, Data> *right)
+{
+    SplayTree<Key, Data> total;
+    if (left && *left && right && *right)
+    {
+        const SplayTree<Key, Data> *left_largest = left->largest(left);
+        splay(left_largest);
+        (*left)->right = move(*right);
+        total = move(*left);
+    }
+    return total;
 }
 
 template <class Key, class Data>
@@ -273,7 +287,7 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::get_parent(const SplayTree<Key, Data
 }
 
 template <class Key, class Data>
-void SplayTree<Key, Data>::splay(SplayTree<Key, Data> *location)
+void SplayTree<Key, Data>::splay(const SplayTree<Key, Data> *location)
 {
     if (location && *location)
     {

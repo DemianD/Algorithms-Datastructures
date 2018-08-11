@@ -55,11 +55,15 @@ int main(int argc, char **argv)
     cout << i++ << '.' << '\n'
          << endl;
     left.pretty_print();
-    
+
     cout << i++ << '.' << '\n'
          << endl;
     right.pretty_print();
-    
+
+    t1 = left.join(&left, &right);
+    cout << i++ << '.' << '\n'
+         << endl;
+    t1.pretty_print();
 
     // t1.delete_bottom_up(0);
     // cout << i++ << '.' << '\n'
