@@ -30,8 +30,48 @@ class DNAsequence : public string
     int d_bottom_up(const DNAsequence &) const;
 };
 
-int DNAsequence::d_td(const string& other) const {    
-   return d_top_down(DNAsequence{other});    
+int DNAsequence::d_bu(const string &other) const
+{
+    return d_bottom_up(DNAsequence{other});
+}
+
+int DNAsequence::d_bottom_up(const DNAsequence &other) const
+{
+    const size_t FROM_LENGTH = size() + 1;
+    const size_t TO_LENGTH = other.size() + 1;
+    vector<vector<int>> distances(FROM_LENGTH, vector<int>(TO_LENGTH, 0));
+
+    for (size_t from = 0; from < FROM_LENGTH; from++)
+    {
+        for (size_t to = 0; to < TO_LENGTH; to++)
+        {
+            if (from == 0)
+            {
+                distances[from][to] = to;
+            }
+            else if (to == 0)
+            {
+                distances[from][to] = from;
+            }
+            else
+            {
+                int replacement = distances[from - 1][to - 1];
+                if ((*this)[from - 1] != other[to - 1])
+                {
+                    replacement++;
+                }
+                int addition = distances[from][to - 1] + 1;
+                int deletion = distances[from - 1][to] + 1;
+                distances[from][to] = std::min({replacement, addition, deletion});
+            }
+        }
+    }
+    return distances[FROM_LENGTH - 1][TO_LENGTH - 1];
+}
+
+int DNAsequence::d_td(const string &other) const
+{
+    return d_top_down(DNAsequence{other});
 }
 
 int DNAsequence::d_top_down(const DNAsequence &other) const
@@ -63,8 +103,8 @@ int DNAsequence::d_top_down_op(const DNAsequence &other, vector<vector<int>> &di
         {
             int additions = 1 + d_top_down_op(other, distances, from, to - 1);
             int deletions = 1 + d_top_down_op(other, distances, from - 1, to);
-            int changes = 1 + d_top_down_op(other, distances, from - 1, to - 1);
-            distances[from][to] = std::min({additions, deletions, changes});
+            int replacements = 1 + d_top_down_op(other, distances, from - 1, to - 1);
+            distances[from][to] = std::min({additions, deletions, replacements});
         }
     }
     return distances[from][to];
