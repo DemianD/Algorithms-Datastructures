@@ -76,7 +76,7 @@ class SplayTree : public SplayNodeptr<Key, Data>
     };
 
     int depth() const;
-    SplayTree<Key, Data> *search(const Key &);
+    std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> search(const Key &);
     void rotate(bool);
     void insert_bottom_up(const Key &, const Data &);
     void insert_top_down(const Key &, const Data &);
@@ -97,21 +97,24 @@ class SplayTree : public SplayNodeptr<Key, Data>
     const SplayTree<Key, Data> *smallest(const SplayTree<Key, Data> *);
 
     std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> split(const Key &);
-    SplayTree<Key, Data> join(SplayTree<Key, Data>*, SplayTree<Key, Data>*);
+    SplayTree<Key, Data> join(SplayTree<Key, Data> *, SplayTree<Key, Data> *);
+
   protected:
     std::tuple<SplayTree<Key, Data> *, SplayNode<Key, Data> *> search_no_splay(const Key &);
     std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> get_family_pointers(const SplayTree<Key, Data> *const);
     SplayTree<Key, Data> *get_parent(const SplayTree<Key, Data> *const);
-    void splay(const SplayTree<Key, Data> *);    
+    void splay(const SplayTree<Key, Data> *);
 };
 
 template <class Key, class Data>
-SplayTree<Key, Data> *SplayTree<Key, Data>::search(const Key &key)
+std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> SplayTree<Key, Data>::search(const Key &key)
 {
     SplayTree<Key, Data> *location = this;
+    SplayTree<Key, Data> *parent = nullptr;
 
     while (*location && (*location)->key != key)
     {
+        parent = location;
         if (key > (*location)->key)
         {
             location = &(*location)->right;
@@ -124,9 +127,9 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::search(const Key &key)
     if (location && *location)
     {
         splay(location);
-        return this;
+        return std::make_tuple(this,parent);
     }
-    return location;
+    return std::make_tuple(location, parent);
 }
 
 template <class Key, class Data>
@@ -177,7 +180,7 @@ SplayTree<Key, Data> *SplayTree<Key, Data>::successor(const SplayTree<Key, Data>
 }
 
 template <class Key, class Data>
-const  SplayTree<Key, Data> *SplayTree<Key, Data>::largest(const SplayTree<Key, Data> *location)
+const SplayTree<Key, Data> *SplayTree<Key, Data>::largest(const SplayTree<Key, Data> *location)
 {
     const SplayTree<Key, Data> *largest = location;
     while (location && *location)
@@ -209,7 +212,7 @@ const SplayTree<Key, Data> *SplayTree<Key, Data>::smallest(const SplayTree<Key, 
 template <class Key, class Data>
 std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> SplayTree<Key, Data>::split(const Key &key)
 {
-    auto location = search(key);
+    auto [location, parent] = search(key);
     std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> tup;
 
     if (location && *location)
@@ -364,9 +367,32 @@ void SplayTree<Key, Data>::insert_bottom_up(const Key &key, const Data &data)
 }
 
 template <class Key, class Data>
-void SplayTree<Key, Data>::insert_top_down(const Key& key, const Data& data) {
-    search(key);
-
+void SplayTree<Key, Data>::insert_top_down(const Key &key, const Data &data)
+{
+    auto [location, parent] = search_no_splay(key);
+    if (!*location && parent)
+    {
+        auto [left, right] = split(parent->key);
+        if(key > parent->key) {
+            *location = SplayTree<Key, Data>(key, data);
+            (*location)->parent = nullptr;
+            (*location)->left = move(left);
+            (*location)->right = move(right);
+        }
+        else if( key < parent->key){
+            *location = SplayTree<Key,Data>(left->key, left->data);
+            left->key = key;
+            left->data = data;
+            (*location)->left = move(left);
+            (*location)->right = move(right);
+            location->rotate(false);
+        }
+    }
+    else
+    {
+        *location = SplayTree<Key, Data>(key, data);
+        (*location)->parent = nullptr;
+    }
 }
 
 template <class Key, class Data>
@@ -384,6 +410,7 @@ void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
                 (*location)->data = (*suc)->data;
                 if ((*suc)->right)
                 {
+                    (*suc)->right->parent = (*suc)->parent;
                     (*suc)->parent->left = move((*suc)->right);
                 }
             }
@@ -392,11 +419,13 @@ void SplayTree<Key, Data>::delete_bottom_up(const Key &key)
         }
         else if ((*location)->left)
         {
+            (*location)->left->parent = (*location)->parent;
             *location = move((*location)->left);
             splay(location);
         }
         else if ((*location)->right)
         {
+            (*location)->right->parent = (*location)->parent;
             *location = move((*location)->right);
             splay(location);
         }
