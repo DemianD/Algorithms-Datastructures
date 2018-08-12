@@ -127,7 +127,7 @@ std::tuple<SplayTree<Key, Data> *, SplayTree<Key, Data> *> SplayTree<Key, Data>:
     if (location && *location)
     {
         splay(location);
-        return std::make_tuple(this,parent);
+        return std::make_tuple(this, parent);
     }
     return std::make_tuple(location, parent);
 }
@@ -219,6 +219,7 @@ std::tuple<SplayTree<Key, Data>, SplayTree<Key, Data>> SplayTree<Key, Data>::spl
     {
         if ((*location)->right)
         {
+            (*location)->right->parent = nullptr;
             std::get<1>(tup) = move((*location)->right);
         }
         std::get<0>(tup) = move(*location);
@@ -234,6 +235,7 @@ SplayTree<Key, Data> SplayTree<Key, Data>::join(SplayTree<Key, Data> *left, Spla
     {
         const SplayTree<Key, Data> *left_largest = left->largest(left);
         splay(left_largest);
+        (*right)->parent = left->get();
         (*left)->right = move(*right);
         total = move(*left);
     }
@@ -373,25 +375,40 @@ void SplayTree<Key, Data>::insert_top_down(const Key &key, const Data &data)
     if (!*location && parent)
     {
         auto [left, right] = split(parent->key);
-        if(key > parent->key) {
-            *location = SplayTree<Key, Data>(key, data);
-            (*location)->parent = nullptr;
-            (*location)->left = move(left);
-            (*location)->right = move(right);
+        SplayTree<Key, Data> tmp{key, data};
+        if (key > parent->key)
+        {
+            tmp->parent = nullptr;
+            left->parent = tmp.get();
+            tmp->left = move(left);
+            if (right)
+            {
+                right->parent = tmp.get();
+                tmp->right = move(right);
+            }
         }
-        else if( key < parent->key){
-            *location = SplayTree<Key,Data>(left->key, left->data);
-            left->key = key;
-            left->data = data;
-            (*location)->left = move(left);
-            (*location)->right = move(right);
-            location->rotate(false);
+        else if (key < parent->key)
+        {
+            right->parent = left.get();
+            left->right = move(right);
+
+            SplayTree<Key, Data> left_left;
+            if (left->left)
+            {
+                left->left->parent = tmp.get();
+                left_left = move(left->left);
+                tmp->left = move(left_left);
+            }
+            left->parent = tmp.get();
+            tmp->right = move(left);
         }
+        *this = move(tmp);
     }
     else
     {
         *location = SplayTree<Key, Data>(key, data);
         (*location)->parent = nullptr;
+        *this = move(*location);
     }
 }
 

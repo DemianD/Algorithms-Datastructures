@@ -80,13 +80,28 @@ int main(int argc, char **argv)
          << endl;
     t1.pretty_print();
 
-     t1.delete_bottom_up(200);
+    t1.delete_bottom_up(200);
     cout << i++ << '.' << '\n'
          << endl;
     t1.pretty_print();
 
-    t1.insert_top_down(0,0);
-     cout << i++ << '.' << '\n'
+    t1.insert_top_down(0, 0);
+    cout << i++ << '.' << '\n'
+         << endl;
+    t1.pretty_print();
+
+    t1.insert_top_down(40, 40);
+    cout << i++ << '.' << '\n'
+         << endl;
+    t1.pretty_print();
+
+    t1.insert_top_down(50, 50);
+    cout << i++ << '.' << '\n'
+         << endl;
+    t1.pretty_print();
+
+    t1.insert_top_down(200, 200);
+    cout << i++ << '.' << '\n'
          << endl;
     t1.pretty_print();
 
