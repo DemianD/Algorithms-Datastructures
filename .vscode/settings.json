@@ -40,7 +40,7 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/*/*[!.txtjsonchpp]":true,        
+        "**/*/*/*.out":true        
     },
     "C_Cpp.loggingLevel": "Information",
     //"editor.fontFamily": "'Hack Regular'",
