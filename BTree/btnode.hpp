@@ -9,8 +9,10 @@ using std::vector;
 template <class Key, class Data>
 class BTnode
 {
+    friend class BTree<Key, Data>;
+
   public:
-    BTnode(){};
+    BTnode() { current_nr_of_keys = 0; };
     virtual ~BTnode() = default;
     BTnode(const BTnode<Key, Data> &) = default;
     BTnode &operator=(const BTnode<Key, Data> &) = default;
@@ -20,13 +22,20 @@ class BTnode
     {
         current_nr_of_keys = 0;
         keys = vector<Key>(2 * minimum_degree - 1);
-        childpointers = vector<BTnode<Key, Data> *>(2 * minimum_degree);
+        data = vector<Data>(2 * minimum_degree - 1);
+        if (!is_leaf)
+        {
+            childpointers = vector<BTnode<Key, Data> *>(2 * minimum_degree);
+        }
     }
 
     void traverse(function<void(const BTnode<Key, Data> &)>);
     BTnode<Key, Data> *search(const Key &);
-    void insert_bottom_up(const Key &, const Data &);
+    void insert_without_split(const Key &, const Data &);
+    void split_node(int, BTnode<Key, Data> *);
     void remove_bottom_up(const Key &);
+    bool empty() const;
+    bool keys_full() const;
 
   private:
     bool is_leaf;
@@ -83,6 +92,77 @@ BTnode<Key, Data> *BTnode<Key, Data>::search(const Key &key)
     {
         return childpointers[i]->search(key);
     }
+}
+
+template <class Key, class Data>
+void BTnode<Key, Data>::insert_without_split(const Key &key, const Data &data)
+{
+    int i = current_nr_of_keys -1;
+    if(is_leaf){
+        while(i>=0 && keys[i]>key){
+            keys[i+1] = move(keys[i]);
+            data[i+1] = move(data[i]);
+            i--;
+        }
+        keys[i+1] = key;
+        data[i+1] = data;
+        current_nr_of_keys+=1;
+    }
+    else {
+        while(i>=0 && keys[i]>key){
+            i--;
+        }
+        if(childpointers[i]->keys_full()){
+            split_node(i+1,childpointers[i+1]);
+            if(keys[i+1]<key){
+                i++;
+            }
+        }
+        childpointers[i+1]->insert_without_split(key,data);
+    }
+}
+
+template <class Key, class Data>
+void BTnode<Key, Data>::split_node(int to_split_child_index, BTnode<Key, Data> *to_split)
+{
+    BTnode<Key, Data> new_node(to_split->is_leaf, to_split->minimum_degree);
+    new_node.current_nr_of_keys = minimum_degree - 1;
+
+    for (int i = 0; i < minimum_degree - 1; i++)
+    {
+        new_node.keys[i] = move(to_split->keys[minimum_degree + i]);
+        new_node.data[i] = move(to_split->data[minimum_degree + i]);
+    }
+    if (!to_split->is_leaf)
+    {
+        for(int i=0;i<minimum_degree;i++){
+            new_node.childpointers[i] = to_split->childpointers[minimum_degree+i];
+        }
+    }
+    to_split->current_nr_of_keys = minimum_degree -1;
+    for(int j=current_nr_of_keys; j>=to_split_child_index+1;j--){
+        this->childpointers[j+1] = this->childpointers[j];        
+    }
+    this->childpointers[to_split_child_index+1] = &new_node; //!FIX
+
+    for(int j=current_nr_of_keys-1; j>=to_split_child_index;j--){
+        this->keys[j+1] = this->keys[j];
+    }
+    this->keys[to_split_child_index] = to_split->keys[minimum_degree-1];
+
+    this->current_nr_of_keys += 1;
+}
+
+template <class Key, class Data>
+bool BTnode<Key, Data>::empty() const
+{
+    return current_nr_of_keys == 0;
+}
+
+template <class Key, class Data>
+bool BTnode<Key, Data>::keys_full() const
+{
+    return current_nr_of_keys == minimum_degree * 2 - 1;
 }
 
 #endif
