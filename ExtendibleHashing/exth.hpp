@@ -170,8 +170,8 @@ Bucket<Key, Data> ExtendibleHashTable<Key, Data>::search(int index)
 template <class Key, class Data>
 int ExtendibleHashTable<Key, Data>::get_index(const Key &key)
 {
-    hash<Key> hash_fuctor;
-    size_t hashed_key = hash_fuctor(key);
+    hash<Key> hash_functor;
+    size_t hashed_key = hash_functor(key);
     // build a sequence of all 1s 1<<global_depth shifts 1 to the left and inserts 0s, so you subtract 1 at the end
     // then bitwise and will keep the number of bits indicated by the mask
     return hashed_key & ((1 << global_depth) - 1);
