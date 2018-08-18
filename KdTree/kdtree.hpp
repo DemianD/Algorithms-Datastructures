@@ -9,6 +9,8 @@ using std::vector;
 using std::move;
 #include <memory>
 using std::unique_ptr;
+#include <cmath>
+using std::max;
 
 template <class... Key>
 class KdNode;
@@ -24,12 +26,27 @@ class KdTree : public unique_ptr<KdNode<Key...>>{
     KdTree<Key...>& operator=(KdTree<Key...>&&) = default;
     KdTree(const int _dim) : dimensions{_dim} {}
     
-    void insert(vector<tuple<Key...>>);    
-    void insert(tuple<Key...>);    
+    void insert(const vector<tuple<Key...>>&);    
+    void insert(vector<tuple<Key...>>&&);    
+    void insert(const tuple<Key...>&);    
+    void insert(tuple<Key...>&&);    
     tuple<Key...>* search(tuple<Key...>&);
+
+    int depth() const;
 
     private:
     int dimensions;
 };
+
+template <class... Key>
+int KdTree<Key...>::depth() const
+{
+    if (!*this)
+    {
+        return -1;
+    }
+    return max((*this)->left.depth(), (*this)->right.depth()) + 1;
+}
+
 
 #endif
