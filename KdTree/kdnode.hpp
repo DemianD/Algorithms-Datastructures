@@ -13,7 +13,7 @@ class KdNode
   friend class KdTree<Key...>;
 
 public:
-  KdNode() : dimension_keys{} {};
+  KdNode() = default;  
   virtual ~KdNode() = default;
   KdNode(const KdNode<Key...> &) = default;
   KdNode<Key...> &operator=(const KdNode<Key...> &) = default;
