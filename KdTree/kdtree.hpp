@@ -10,26 +10,23 @@ using std::move;
 #include <memory>
 using std::unique_ptr;
 
-template <class Key>
+template <class... Key>
 class KdNode;
 
-template <class Key>
-class KdTree : public unique_ptr<KdNode<Key>>{
+template <class... Key>
+class KdTree : public unique_ptr<KdNode<Key...>>{
     public:
     KdTree() = default;
     virtual ~KdTree() = default;
-    KdTree(const KdTree<Key>&) = default;
-    KdTree<Key>& operator=(const KdTree<Key>&) = default;
-    KdTree(KdTree<Key>&&) = default;
-    KdTree<Key>& operator=(KdTree<Key>&&) = default;
+    KdTree(const KdTree<Key...>&) = default;
+    KdTree<Key...>& operator=(const KdTree<Key...>&) = default;
+    KdTree(KdTree<Key...>&&) = default;
+    KdTree<Key...>& operator=(KdTree<Key...>&&) = default;
     KdTree(const int _dim) : dimensions{_dim} {}
-
-    template <class... Dimensions>
-    void insert(vector<tuple<Dimensions...>>);
-    template <class... Dimensions>
-    void insert(tuple<Dimensions...>);
-    template <class... Dimensions>
-    tuple<Dimensions...>* search(tuple<Dimensions...>&);
+    
+    void insert(vector<tuple<Key...>>);    
+    void insert(tuple<Key...>);    
+    tuple<Key...>* search(tuple<Key...>&);
 
     private:
     int dimensions;

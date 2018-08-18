@@ -6,26 +6,24 @@ using std::tuple;
 #include <utility>
 using std::move;
 
-template <class Key>
+template <class... Key>
 class KdNode
 {
-    friend class KdTree<Key>;
+    friend class KdTree<Key...>;
   public:
     KdNode() = default;
     virtual ~KdNode() = default;
-    KdNode(const KdNode<Key> &) = default;
-    KdNode<Key> &operator=(const KdNode<Key> &) = default;
-    KdNode(KdNode<Key> &&) = default;
-    KdNode<Key> &operator=(KdNode<Key> &&) = default;    
-    template <class... Dimensions>
-    KdNode(const tuple<Dimensions...>& keys) : dimension_keys{keys} {}
-    template <class ...Dimensions>
-    KdNode(tuple<Dimensions...>&& keys) : dimension_keys{move(keys)} {}
+    KdNode(const KdNode<Key...> &) = default;
+    KdNode<Key...> &operator=(const KdNode<Key...> &) = default;
+    KdNode(KdNode<Key...> &&) = default;
+    KdNode<Key...> &operator=(KdNode<Key...> &&) = default;        
+    KdNode(const tuple<Key...>& keys) : dimension_keys{keys} {}    
+    KdNode(tuple<Key...>&& keys) : dimension_keys{move(keys)} {}
 
   private:
-    tuple<class... > dimension_keys;
-    KdTree<Key> left;
-    KdTree<Key> right;
+    tuple<Key... > dimension_keys;
+    KdTree<Key...> left;
+    KdTree<Key...> right;
 };
 
 #endif
