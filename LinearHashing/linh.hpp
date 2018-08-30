@@ -77,6 +77,8 @@ class Bucket
 
   private:
     int m;
+    // These underlying data structures are not according to the specification, which requires a sorted list, needs rework
+    // to be compliant.
     unordered_map<Key, Data> mapping;
     // my overflow mapping is unbounded, this is not in accordance with the definition or with an implementation for hard drives
     unordered_map<Key, Data> overflow_mapping;
