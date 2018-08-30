@@ -75,6 +75,8 @@ class Graph
 
     bool isConnected(const Graph<RT> &);
 
+    int isEulerian(const Graph<RT> &);
+
     Graph<RT> transpose(Graph<RT> &);
 
     bool isStronglyConnected(Graph<RT> &);
@@ -187,6 +189,33 @@ bool Graph<UNDIRECTED>::isConnected(const Graph<UNDIRECTED> &graph)
         i++;
     }
     return true;
+}
+
+template <>
+int Graph<UNDIRECTED>::isEulerian(const Graph<UNDIRECTED> &graph)
+{
+    // return 0: not Eulerian
+    // return 1: semi-Eulerian, has an Eulerian path, but no Eurlerian circuit
+    // return 2: Eulerian, has a Eulerian circuit
+    if (!isConnected(graph))
+    {
+        return 0;
+    }
+    int odd = 0;
+    for (int i = 0; i < graph.numberOfVertices(); i++)
+    {
+        if (graph[i].size() & 1)
+        {
+            odd++;
+        }
+    }
+    if (odd > 2)
+    {
+        return 0;
+    }
+    // odd == 2 -> semi-eulerian, meaning the endpoints have an odd number of neighbors
+    // odd == 0 -> eulerian, meaning all nodes have even numbers of neighbors
+    return odd ? 1 : 2;
 }
 
 template <DirectionType RT>
