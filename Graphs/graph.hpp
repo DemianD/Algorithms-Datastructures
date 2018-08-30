@@ -49,13 +49,13 @@ enum DirectionType
 
 class GraphException : public std::logic_error
 {
-public:
-    GraphException(const std::string& message_) : std::logic_error(message_)
+  public:
+    GraphException(const std::string &message_) : std::logic_error(message_)
     {
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const GraphException& exc)
+std::ostream &operator<<(std::ostream &os, const GraphException &exc)
 {
     return os << exc.what();
 }
@@ -63,15 +63,21 @@ std::ostream& operator<<(std::ostream& os, const GraphException& exc)
 template <DirectionType RT>
 class Graph
 {
-public:
+  public:
     // Vertex.first = vertex number of neighbor, Vertex.second = edge number
-    typedef std::map<int, int> Vertex; 
-    
+    typedef std::map<int, int> Vertex;
+
     // Constructs a graph with n vertices, without edges
     Graph(int n = 0);
 
-    // Returns true for a DIRECTED graph or false if UNDIRECTED    
+    // Returns true for a DIRECTED graph or false if UNDIRECTED
     bool isDirected() const;
+
+    bool isConnected(const Graph<RT> &);
+
+    Graph<RT> transpose(Graph<RT> &);
+
+    bool isStronglyConnected(Graph<RT> &);
 
     // Adds a new 'empty' vertex (one without edges)
     // Returns the vertex number of the new node
@@ -85,7 +91,7 @@ public:
 
     // Removes the edge between the nodes with numbers from and to, including the 2nd edge if called on an UNDIRECTED graph.
     // Throws a GraphException if the node numbers are invalid, however no exception if thrown if the edge didn't exist
-    // It doesn't renumber the remaining edges after deletion    
+    // It doesn't renumber the remaining edges after deletion
     virtual void removeEdge(int from, int to);
 
     // Returns the number of vertices in the graph
@@ -101,44 +107,44 @@ public:
     // Complexity is O(log(E)) with E the number of edges originating at the from vertex
     int edgeNumber(int from, int to) const;
 
-    // Removes all vertices and edges and resets the edge count    
+    // Removes all vertices and edges and resets the edge count
     virtual void remove();
 
     // Access to the vertices
 
-    const Vertex& operator[](int i) const
+    const Vertex &operator[](int i) const
     {
         return vertices[i];
     }
 
     // this one may be used as lvalue, while the const one doens't allow this
-    Vertex& operator[](int i)
+    Vertex &operator[](int i)
     {
         return vertices[i];
-    } 
+    }
 
     // Writes a representation of the graph to the supplied output stream
-    virtual void output(std::ostream& os) const;
+    virtual void output(std::ostream &os) const;
 
-    // Writes the data of the vertex with number v to os    
-    virtual void outputVertex(std::ostream& os, int v) const;
+    // Writes the data of the vertex with number v to os
+    virtual void outputVertex(std::ostream &os, int v) const;
 
-    // Writes the data of the edge with number e to os    
-    virtual void outputEdge(std::ostream& os, int e) const;
+    // Writes the data of the edge with number e to os
+    virtual void outputEdge(std::ostream &os, int e) const;
 
     std::string generate_dot_code() const;
 
-protected:
+  protected:
     void checkVertexNumber(int v) const; // throw if v is invalid
     void addEdgeToDatastructure(int from, int to, int edge_number);
     void removeEdgeFromDatastructure(int from, int to);
-    void DFS(const Graph<RT>& graph,
-                             int vertex_nr,
-                             std::vector<bool>& already_visisted,
-                             std::function<void(int vertex_nr)> prefix_function,
-                             std::function<void(int vertex_nr)> postfix_function);
+    void DFS(const Graph<RT> &graph,
+             int vertex_nr,
+             std::vector<bool> &already_visisted,
+             std::function<void(int vertex_nr)> prefix_function,
+             std::function<void(int vertex_nr)> postfix_function);
 
-protected:
+  protected:
     std::vector<Vertex> vertices;
     int highest_edge_number;
     DirectionType direction_type;
@@ -146,9 +152,86 @@ protected:
 };
 
 template <DirectionType RT>
-std::ostream& operator<<(std::ostream& os, const Graph<RT>& g);
+std::ostream &operator<<(std::ostream &os, const Graph<RT> &g);
 
 // --- implementation ---
+template <DirectionType RT>
+bool Graph<RT>::isConnected(const Graph<RT> &graph)
+{
+    throw "not supported";
+}
+
+template <>
+bool Graph<UNDIRECTED>::isConnected(const Graph<UNDIRECTED> &graph)
+{
+    std::vector<bool> visited(vertices.size(), false);
+    int i = 0;
+    while (i < vertices.size() && vertices[i].size() == 0)
+    {
+        i++;
+    }
+    if (i == vertices.size())
+    {
+        // there are vertices, but no edges, every vertex is a connected component
+        return true;
+    }
+    auto lambda = [](int) -> void {};
+    DFS(graph, i, visited, lambda, lambda);
+    i = 0;
+    while (i < vertices.size())
+    {
+        if (vertices[i].size() > 0 && visited[i] == false)
+        {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+
+template <DirectionType RT>
+Graph<RT> Graph<RT>::transpose(Graph<RT> &)
+{
+    throw "Not supported"
+}
+
+template <>
+Graph<DIRECTED> Graph<DIRECTED>::transpose(Graph<DIRECTED> &graph)
+{
+    Graph<DIRECTED> g(graph.numberOfVertices());
+    int i = 0;
+    while (i < g.numberOfVertices())
+    {
+        for (const auto &neighbor : vertices[i])
+        {
+            g.insertEdge(neighbor.first, i);
+        }
+        i++;
+    }
+    return g;
+}
+
+template <DirectionType RT>
+bool Graph<RT>::isStronglyConnected(Graph<RT> &g)
+{
+    throw "Not supported";
+}
+
+template <>
+bool Graph<DIRECTED>::isStronglyConnected(Graph<DIRECTED> &g)
+{
+    Graph<DIRECTED> transposed = std::move(transpose(g));
+    bool transposed_connected = isConnected(transposed);
+
+    if (transposed_connected)
+    {
+        return isConnected(g);
+    }
+    else
+    {
+        return false;
+    }
+}
 
 template <DirectionType RT>
 std::string Graph<RT>::generate_dot_code() const
@@ -165,9 +248,9 @@ std::string Graph<DIRECTED>::generate_dot_code() const
 
     for (int i = 0; i < numberOfVertices(); i++)
     {
-        const auto& vertex = (*this)[i];
+        const auto &vertex = (*this)[i];
 
-        for (const auto& it : vertex)
+        for (const auto &it : vertex)
         {
             out << "\t" << i << " -> " << it.first << std::endl;
         }
@@ -179,11 +262,11 @@ std::string Graph<DIRECTED>::generate_dot_code() const
 }
 
 template <DirectionType RT>
-void Graph<RT>::DFS(const Graph<RT>& graph,
-                                    int vertex_nr,
-                                    std::vector<bool>& already_visisted,
-                                    std::function<void(int vertex_nr)> prefix_function,
-                                    std::function<void(int vertex_nr)> postfix_function)
+void Graph<RT>::DFS(const Graph<RT> &graph,
+                    int vertex_nr,
+                    std::vector<bool> &already_visisted,
+                    std::function<void(int vertex_nr)> prefix_function,
+                    std::function<void(int vertex_nr)> postfix_function)
 {
     if (already_visisted[vertex_nr])
     {
@@ -193,7 +276,7 @@ void Graph<RT>::DFS(const Graph<RT>& graph,
     prefix_function(vertex_nr);
 
     already_visisted[vertex_nr] = true;
-    for (const auto& neighbor : graph[vertex_nr])
+    for (const auto &neighbor : graph[vertex_nr])
     {
         DFS(graph, neighbor.first, already_visisted, prefix_function, postfix_function);
     }
@@ -204,7 +287,7 @@ void Graph<RT>::DFS(const Graph<RT>& graph,
 template <DirectionType RT>
 void Graph<RT>::checkVertexNumber(int v) const
 {
-    if (v < 0 || (size_t) v >= vertices.size())
+    if (v < 0 || (size_t)v >= vertices.size())
         throw GraphException("invalid vertex number");
 }
 
@@ -335,7 +418,7 @@ void Graph<RT>::remove()
 }
 
 template <DirectionType RT>
-void Graph<RT>::output(std::ostream& os) const
+void Graph<RT>::output(std::ostream &os) const
 {
     os << "Graph: " << numberOfVertices() << " vertices and " << numberOfEdges() << " edges:" << std::endl;
     for (int v = 0; v < numberOfVertices(); v++)
@@ -343,7 +426,7 @@ void Graph<RT>::output(std::ostream& os) const
 }
 
 template <DirectionType RT>
-void Graph<RT>::outputVertex(std::ostream& os, int v) const
+void Graph<RT>::outputVertex(std::ostream &os, int v) const
 {
     os << "vertex " << v << ":" << std::endl;
     for (Vertex::const_iterator it = vertices[v].begin(); it != vertices[v].end(); ++it)
@@ -354,13 +437,13 @@ void Graph<RT>::outputVertex(std::ostream& os, int v) const
 }
 
 template <DirectionType RT>
-void Graph<RT>::outputEdge(std::ostream& os, int v) const
+void Graph<RT>::outputEdge(std::ostream &os, int v) const
 {
     os << " via " << v << std::endl;
 }
 
 template <DirectionType RT>
-std::ostream& operator<<(std::ostream& os, const Graph<RT>& g)
+std::ostream &operator<<(std::ostream &os, const Graph<RT> &g)
 {
     g.output(os);
     return os;
@@ -369,27 +452,26 @@ std::ostream& operator<<(std::ostream& os, const Graph<RT>& g)
 template <DirectionType RT, class EdgeData>
 class GraphWithEdgeData : public virtual Graph<RT>
 {
-public:
-    
+  public:
     // Constructs a graph of the given direction type with n vertices, no edges
     GraphWithEdgeData(int n = 0) : Graph<RT>(n){};
-    // Note: it is only possible to have a insertion function where you don't immediately supply EdgeData 
+    // Note: it is only possible to have a insertion function where you don't immediately supply EdgeData
     // if the EdgeData class has a default constructor
     virtual int insertEdge(int from, int to);
-    virtual int insertEdge(int from, int to, const EdgeData&);
-    // Note: removeEdge is taken from Graph without changes    
+    virtual int insertEdge(int from, int to, const EdgeData &);
+    // Note: removeEdge is taken from Graph without changes
 
-    // Returns a pointer to the EdgeData if the edge exists, nullptr otherwise    
-    // Note: pointers returned by getEdgeData are invalid if a new edge gets inserted    
-    const EdgeData* getEdgeData(int from, int to) const;
-    EdgeData* getEdgeData(int from, int to);
+    // Returns a pointer to the EdgeData if the edge exists, nullptr otherwise
+    // Note: pointers returned by getEdgeData are invalid if a new edge gets inserted
+    const EdgeData *getEdgeData(int from, int to) const;
+    EdgeData *getEdgeData(int from, int to);
 
     virtual void remove();
 
-    // Now includes the data stored for the edge in the output to os    
-    virtual void outputEdge(std::ostream& os, int v) const;
+    // Now includes the data stored for the edge in the output to os
+    virtual void outputEdge(std::ostream &os, int v) const;
 
-protected:
+  protected:
     std::vector<EdgeData> edgedata_vector;
 };
 
@@ -400,7 +482,7 @@ int GraphWithEdgeData<RT, EdgeData>::insertEdge(int from, int to)
 }
 
 template <DirectionType RT, class EdgeData>
-int GraphWithEdgeData<RT, EdgeData>::insertEdge(int from, int to, const EdgeData& td)
+int GraphWithEdgeData<RT, EdgeData>::insertEdge(int from, int to, const EdgeData &td)
 {
     bool is_new_edge_number = this->reusable_edge_numbers.empty();
     int edge_number = Graph<RT>::insertEdge(from, to);
@@ -417,7 +499,7 @@ int GraphWithEdgeData<RT, EdgeData>::insertEdge(int from, int to, const EdgeData
 }
 
 template <DirectionType RT, class EdgeData>
-const EdgeData* GraphWithEdgeData<RT, EdgeData>::getEdgeData(int from, int to) const
+const EdgeData *GraphWithEdgeData<RT, EdgeData>::getEdgeData(int from, int to) const
 {
     int edge_number = this->edgeNumber(from, to);
     if (edge_number != -1)
@@ -427,7 +509,7 @@ const EdgeData* GraphWithEdgeData<RT, EdgeData>::getEdgeData(int from, int to) c
 }
 
 template <DirectionType RT, class EdgeData>
-EdgeData* GraphWithEdgeData<RT, EdgeData>::getEdgeData(int from, int to)
+EdgeData *GraphWithEdgeData<RT, EdgeData>::getEdgeData(int from, int to)
 {
     int edge_number = this->edgeNumber(from, to);
     if (edge_number != -1)
@@ -444,7 +526,7 @@ void GraphWithEdgeData<RT, EdgeData>::remove()
 }
 
 template <DirectionType RT, class EdgeData>
-void GraphWithEdgeData<RT, EdgeData>::outputEdge(std::ostream& os, int v) const
+void GraphWithEdgeData<RT, EdgeData>::outputEdge(std::ostream &os, int v) const
 {
     os << " via " << v << "(Data: " << edgedata_vector[v] << ")" << std::endl;
 }
@@ -452,21 +534,21 @@ void GraphWithEdgeData<RT, EdgeData>::outputEdge(std::ostream& os, int v) const
 template <DirectionType RT, class VertexData>
 class GraphWithVertexData : public virtual Graph<RT>
 {
-public:    
+  public:
     template <class InputIterator>
     GraphWithVertexData(InputIterator start, InputIterator end);
 
     GraphWithVertexData() : Graph<RT>(){};
 
     virtual int insertVertex();
-    virtual int insertVertex(const VertexData&);
+    virtual int insertVertex(const VertexData &);
 
-    const VertexData* getVertexData(int knoopnr) const;
-    VertexData* getVertexData(int knoopnr);
+    const VertexData *getVertexData(int knoopnr) const;
+    VertexData *getVertexData(int knoopnr);
     virtual void remove();
-    virtual void outputVertex(std::ostream& os, int v) const;
+    virtual void outputVertex(std::ostream &os, int v) const;
 
-protected:    
+  protected:
     std::vector<VertexData> vertexdata_vector;
 };
 
@@ -485,7 +567,7 @@ int GraphWithVertexData<RT, VertexData>::insertVertex()
 }
 
 template <DirectionType RT, class VertexData>
-int GraphWithVertexData<RT, VertexData>::insertVertex(const VertexData& kd)
+int GraphWithVertexData<RT, VertexData>::insertVertex(const VertexData &kd)
 {
     int ret = Graph<RT>::insertVertex();
     vertexdata_vector.push_back(kd);
@@ -493,14 +575,14 @@ int GraphWithVertexData<RT, VertexData>::insertVertex(const VertexData& kd)
 }
 
 template <DirectionType RT, class VertexData>
-const VertexData* GraphWithVertexData<RT, VertexData>::getVertexData(int edge_number) const
+const VertexData *GraphWithVertexData<RT, VertexData>::getVertexData(int edge_number) const
 {
     this->checkVertexNumber(edge_number);
     return &vertexdata_vector[edge_number];
 }
 
 template <DirectionType RT, class VertexData>
-VertexData* GraphWithVertexData<RT, VertexData>::getVertexData(int edge_number)
+VertexData *GraphWithVertexData<RT, VertexData>::getVertexData(int edge_number)
 {
     this->checkVertexNumber(edge_number);
     return &vertexdata_vector[edge_number];
@@ -514,7 +596,7 @@ void GraphWithVertexData<RT, VertexData>::remove()
 }
 
 template <DirectionType RT, class VertexData>
-void GraphWithVertexData<RT, VertexData>::outputVertex(std::ostream& os, int v) const
+void GraphWithVertexData<RT, VertexData>::outputVertex(std::ostream &os, int v) const
 {
     os << "vertex " << v << "(Data: " << vertexdata_vector[v] << "):" << std::endl;
     for (std::map<int, int>::const_iterator it = this->vertices[v].begin(); it != this->vertices[v].end(); ++it)
@@ -527,7 +609,7 @@ void GraphWithVertexData<RT, VertexData>::outputVertex(std::ostream& os, int v) 
 template <DirectionType RT, class VertexData, class EdgeData>
 class GraphWithNodeAndEdgeData : public GraphWithVertexData<RT, VertexData>, public GraphWithEdgeData<RT, EdgeData>
 {
-public:
+  public:
     template <class InputIterator>
     GraphWithNodeAndEdgeData(InputIterator start, InputIterator end) : GraphWithVertexData<RT, VertexData>(start, end){};
 
