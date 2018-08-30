@@ -192,7 +192,7 @@ bool Graph<UNDIRECTED>::isConnected(const Graph<UNDIRECTED> &graph)
 template <DirectionType RT>
 Graph<RT> Graph<RT>::transpose(Graph<RT> &)
 {
-    throw "Not supported"
+    throw "Not supported";
 }
 
 template <>
@@ -220,6 +220,8 @@ bool Graph<RT>::isStronglyConnected(Graph<RT> &g)
 template <>
 bool Graph<DIRECTED>::isStronglyConnected(Graph<DIRECTED> &g)
 {
+    // note that this function only tells you if the directed graph is stronlgy connected
+    // it does not return the components, nor has the machinery to keep track of them
     Graph<DIRECTED> transposed = std::move(transpose(g));
     bool transposed_connected = isConnected(transposed);
 
