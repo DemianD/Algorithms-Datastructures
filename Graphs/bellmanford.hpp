@@ -14,6 +14,7 @@ using std::numeric_limits;
 class BellmanFord
 {
   public:
+    BellmanFord() = default;
     BellmanFord(GraphWithEdgeData<DIRECTED, int> &G, int s, vector<int> &P, vector<int> &D)
     {
         D = vector<int>(G.numberOfVertices(), numeric_limits<int>::max());

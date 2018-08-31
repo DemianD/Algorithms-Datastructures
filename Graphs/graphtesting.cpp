@@ -1,15 +1,18 @@
 #include "graph.hpp"
 #include "kosaraju.hpp"
+#include "bellmanford.hpp"
 #include <iostream>
 #include <iomanip>
 
 using namespace std;
 
 void test_kosaraju();
+void test_bellmanford();
 
 int main(int argc, char **argv)
 {
     test_kosaraju();
+    test_bellmanford();
     return 0;
 }
 
@@ -40,4 +43,25 @@ void test_kosaraju()
         }
         cout << endl;
     }
+}
+
+void test_bellmanford()
+{
+    GraphWithEdgeData<DirectionType::DIRECTED, int> G(5);
+    G.insertEdge(0, 1, 4);
+    G.insertEdge(0, 2, 5);
+    G.insertEdge(1, 2, -3);
+    G.insertEdge(2, 4, 4);
+    G.insertEdge(0, 3, 8);
+    G.insertEdge(3, 4, 2);
+    G.insertEdge(4, 3, 1);
+    vector<int> distances;
+    vector<int> parents;
+    BellmanFord B(G, 0, parents, distances);
+    int i;
+    cout << "shortest distances: Vertex -> distance pair from 0"<<endl;
+    for (i = 0; i < distances.size(); i++)
+    {
+        cout << i << " -> "<< distances[i]<<endl;
+    }        
 }
